@@ -971,6 +971,11 @@ $text['label-recent_calls']['ru-ru'] = "Последние вызовы";
 $text['label-recent_calls']['sv-se'] = "Senaste Samtalen";
 $text['label-recent_calls']['uk-ua'] = "";
 
+$text['label-time_to_answer']['en-us'] = "Time to answer";
+$text['label-time_to_answer']['en-gb'] = "Time to answer";
+$text['label-time_to_answer']['pt-br'] = "Tempo para atender";
+$text['label-time_to_answer']['pt-pt'] = "Tempo para atender";
+
 $text['label-processor_usage']['en-us'] = "CPU Usage";
 $text['label-processor_usage']['en-gb'] = "CPU Usage";
 $text['label-processor_usage']['ar-eg'] = "معالج الاستخدام";
@@ -1741,6 +1746,9 @@ $text['label-date_time']['ru-ru'] = "Дата/Время";
 $text['label-date_time']['sv-se'] = "Datum/Tid";
 $text['label-date_time']['uk-ua'] = "Дата, час";
 
+$text['label-seconds']['en-us'] = "Seconds";
+$text['label-seconds']['pt-br'] = "Segundos";
+
 $text['label-database_connections']['en-us'] = "DB Connections";
 $text['label-database_connections']['en-gb'] = "DB Connections";
 $text['label-database_connections']['ar-eg'] = "اتصالات قاعدة البيانات";
@@ -1806,6 +1814,36 @@ $text['label-cid_number']['ro-ro'] = "";
 $text['label-cid_number']['ru-ru'] = "Номер";
 $text['label-cid_number']['sv-se'] = "Nummer";
 $text['label-cid_number']['uk-ua'] = "Номер";
+
+$text['label-calls_chart_title']['en-us'] = 'Calls Chart';
+$text['label-calls_chart_title']['pt-br'] = 'Gráfico de Chamadas';
+
+$text['label-answer_rate']['en-us'] = "Answer Rate";
+$text['label-answer_rate']['pt-br'] = "Taxa de Atendimentos";
+
+$text['label-percent']['en-us'] = "Percent";
+$text['label-percent']['pt-br'] = "Porcento";
+
+$text['label-period']['en-us'] = "Period";
+$text['label-period']['pt-br'] = "Período";
+
+$text['label-tta_today']['en-us'] = "Today";
+$text['label-tta_today']['pt-br'] = "Hoje";
+
+$text['label-tta_yesterday']['en-us'] = "Yesterday";
+$text['label-tta_yesterday']['pt-br'] = "Ontem";
+
+$text['label-tta_this_week']['en-us'] = "This Week";
+$text['label-tta_this_week']['pt-br'] = "Semana Atual";
+
+$text['label-tta_last_week']['en-us'] = "Last week";
+$text['label-tta_last_week']['pt-br'] = "Semana Passada";
+
+$text['label-tta_this_month']['en-us'] = "This Month";
+$text['label-tta_this_month']['pt-br'] = "Mês Atual";
+
+$text['label-tta_last_month']['en-us'] = "Last Month";
+$text['label-tta_last_month']['pt-br'] = "Mês Passado";
 
 $text['label-cid_name']['en-us'] = "Name";
 $text['label-cid_name']['en-gb'] = "Name";

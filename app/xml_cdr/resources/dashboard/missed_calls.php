@@ -18,8 +18,7 @@
 	$language = new text;
 	$text = $language->get($_SESSION['domain']['language']['code'], 'core/user_settings');
 
-//missed calls
-	echo "<div class='hud_box'>\n";
+
 	if (is_array($_SESSION['user']['extension'])) {
 		foreach ($_SESSION['user']['extension'] as $assigned_extension) {
 			$assigned_extensions[$assigned_extension['extension_uuid']] = $assigned_extension['user'];
@@ -46,7 +45,8 @@
 	$sql .=	"		or direction = 'local' \n";
 	$sql .=	"	) \n";
 	$sql .=	"	and (missed_call = true or bridge_uuid is null) ";
-	$sql .=	"	and hangup_cause <> 'LOSE_RACE' ";
+	//$sql .=	"	and hangup_cause <> 'LOSE_RACE' ";
+	$sql .= "	and caller_id_number ~ '.{6}' ";
 	if (is_array($assigned_extensions) && sizeof($assigned_extensions) != 0) {
 		$x = 0;
 		foreach ($assigned_extensions as $assigned_extension_uuid => $assigned_extension) {
@@ -61,20 +61,23 @@
 		}
 		unset($sql_where_array);
 	}
-	$sql .= "and start_epoch > ".(time() - 86400)." \n";
+	$sql .= "and start_epoch > ".strtotime("today")." \n";
 	$sql .=	"order by \n";
 	$sql .=	"start_epoch desc \n";
 	$parameters['domain_uuid'] = $_SESSION['domain_uuid'];
-	//echo $sql;
-	//view_array($parameters);
 	$database = new database;
 	$result = $database->select($sql, $parameters, 'all');
+
+	//var_dump($result);
 
 	$num_rows = is_array($result) ? sizeof($result) : 0;
 
 	$c = 0;
 	$row_style["0"] = "row_style0";
 	$row_style["1"] = "row_style1";
+
+	//missed calls
+	echo "<div class='hud_box'>\n";
 
 
 //add doughnut chart
@@ -185,7 +188,7 @@
 	unset($sql, $parameters, $result, $num_rows, $index, $row);
 
 	echo "</table>\n";
-	echo "<span style='display: block; margin: 6px 0 7px 0;'><a href='".PROJECT_PATH."/app/xml_cdr/xml_cdr.php?call_result=missed'>".$text['label-view_all']."</a></span>\n";
+	echo "<span style='display: block; margin: 6px 0 7px 0;'><a href='".PROJECT_PATH."/app/xml_cdr/xml_cdr.php?direction=inbound&call_result=missed'>".$text['label-view_all']."</a></span>\n";
 	echo "</div>";
 	$n++;
 

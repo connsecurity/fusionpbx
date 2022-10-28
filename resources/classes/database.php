@@ -1536,7 +1536,7 @@ include "root.php";
 							$message["parameters"] = $parameters;
 						}
 						$this->message = $message;
-						return false;
+						return $message;
 					}
 			} //select
 

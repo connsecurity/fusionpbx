@@ -92,6 +92,8 @@
 		$response = event_socket_request($fp, 'api '.$switch_command);
 	}
 
+	echo $switch_command;
+
 /*
 //set the username
 	if (if_group("admin") || if_group("superadmin")) {

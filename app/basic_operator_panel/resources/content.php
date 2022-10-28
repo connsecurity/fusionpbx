@@ -203,9 +203,9 @@ if (is_array($groups) && @sizeof($groups) > 0) {
 echo "				<td valign='top' nowrap='nowrap'>\n";
 echo "					<input type='hidden' id='extension_filter' value=\"".escape($_REQUEST['extension_filter'])."\">\n";
 echo "					<input type='hidden' id='name_filter' value=\"".strtolower(escape($_REQUEST['name_filter']))."\">\n";
-echo "					<input type='text' class='formfld' placeholder='Filter Extension' value=\"".escape($_REQUEST['extension_filter'])."\" onkeyup=\"document.getElementById('extension_filter').value = this.value; refresh_start();\" onfocus='refresh_stop();'>\n";
-echo "					<input type='text' class='formfld' placeholder='Filter Name' value=\"".strtolower(escape($_REQUEST['name_filter']))."\" onkeyup=\"document.getElementById('name_filter').value = this.value; refresh_start();\" onfocus='refresh_stop();'>\n";
-echo "					<input type='button' class='btn' title=\"Clear\" value=\"Clear\" onclick=\"document.getElementById('extension_filter').value = ''; document.getElementById('name_filter').value = '';\" ".$onhover_pause_refresh.">\n";
+echo "					<input type='text' class='formfld' placeholder=\"".$text['placeholder-filter_extension']."\" value=\"".escape($_REQUEST['extension_filter'])."\" onkeyup=\"document.getElementById('extension_filter').value = this.value; refresh_start();\" onfocus='refresh_stop();'>\n";
+echo "					<input type='text' class='formfld' placeholder=\"".$text['placeholder-filter_name']."\" value=\"".strtolower(escape($_REQUEST['name_filter']))."\" onkeyup=\"document.getElementById('name_filter').value = this.value; refresh_start();\" onfocus='refresh_stop();'>\n";
+echo "					<input type='button' class='btn' title=\"Clear\" value=\"".$text['button-clear']."\" onclick=\"document.getElementById('extension_filter').value = ''; document.getElementById('name_filter').value = '';\" ".$onhover_pause_refresh.">\n";
 echo "				</td>\n";
 echo "				</tr>\n";
 echo "			</table>\n";

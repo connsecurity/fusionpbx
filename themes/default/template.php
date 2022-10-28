@@ -974,7 +974,8 @@
 		}
 
 		function modal_close() {
-			var modals = document.getElementsByClassName('modal-window');
+			//var modals = document.getElementsByClassName('modal-window');
+			var modals = document.querySelectorAll('.modal-window, .modal-ac-window');
 			if (modals.length > 0) {
 				for (var m = 0; m < modals.length; ++m) {
 					modals[m].style.opacity = '0';

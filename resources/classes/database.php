@@ -24,7 +24,6 @@
 	Mark J Crane <markjcrane@fusionpbx.com>
 	Luis Daniel Lucio Quiroz <dlucio@okay.com.mx>
 */
-include "root.php";
 
 //define the database class
 	if (!class_exists('database')) {
@@ -405,47 +404,46 @@ include "root.php";
 			 */
 			public function connect() {
 
-				if (strlen($this->db_name) == 0) {
-					//include config.php
-						include "root.php";
-						if (file_exists($_SERVER["PROJECT_ROOT"]."/resources/config.php")) {
-							include $_SERVER["PROJECT_ROOT"]."/resources/config.php";
-						} elseif (file_exists($_SERVER["PROJECT_ROOT"]."/resources/config.php")) {
-							include $_SERVER["PROJECT_ROOT"]."/resources/config.php";
-						} elseif (file_exists("/etc/fusionpbx/config.php")){
-							//linux
-							include "/etc/fusionpbx/config.php";
-						} elseif (file_exists("/usr/local/etc/fusionpbx/config.php")) {
-							//bsd
-							include "/usr/local/etc/fusionpbx/config.php";
-						}
+				//set the include path
+					$conf = glob("{/usr/local/etc,/etc}/fusionpbx/config.conf", GLOB_BRACE);
+					set_include_path(parse_ini_file($conf[0])['document.root']);
+					
+				//parset the config.conf file
+					$conf = parse_ini_file($conf[0]);
 
-					//backwards compatibility
-						if (isset($dbtype)) { $db_type = $dbtype; }
-						if (isset($dbhost)) { $db_host = $dbhost; }
-						if (isset($dbport)) { $db_port = $dbport; }
-						if (isset($dbname)) { $db_name = $dbname; }
-						if (isset($dbusername)) { $db_username = $dbusername; }
-						if (isset($dbpassword)) { $db_password = $dbpassword; }
-						if (isset($dbfilepath)) { $db_path = $db_file_path; }
-						if (isset($dbfilename)) { $db_name = $dbfilename; }
+				//get the database connection settings
+					$db_type = $conf['database.0.type'];
+					$db_host = $conf['database.0.host'];
+					$db_port = $conf['database.0.port'];
+					$db_name = $conf['database.0.name'];
+					$db_username = $conf['database.0.username'];
+					$db_password = $conf['database.0.password'];
 
-					//set defaults
-						if (!isset($this->driver) && isset($db_type)) { $this->driver = $db_type; }
-						if (!isset($this->type) && isset($db_type)) { $this->type = $db_type; }
-						if (!isset($this->host) && isset($db_host)) { $this->host = $db_host; }
-						if (!isset($this->port) && isset($db_port)) { $this->port = $db_port; }
-						if (!isset($this->db_name) && isset($db_name)) { $this->db_name = $db_name; }
-						if (!isset($this->db_secure) && isset($db_secure)) {
-							$this->db_secure = $db_secure;
-						}
-						else {
-							$this->db_secure = false;
-						}
-						if (!isset($this->username) && isset($db_username)) { $this->username = $db_username; }
-						if (!isset($this->password) && isset($db_password)) { $this->password = $db_password; }
-						if (!isset($this->path) && isset($db_path)) { $this->path = $db_path; }
-				}
+				//debug info
+					//echo "db type:".$db_type."\n";
+					//echo "db host:".$db_host."\n";
+					//echo "db port:".$db_port."\n";
+					//echo "db name:".$db_name."\n";
+					//echo "db username:".$db_username."\n";
+					//echo "db password:".$db_password."\n";
+					//echo "db path:".$db_path."\n";
+					//echo "</pre>\n";
+
+				//set defaults
+					if (!isset($this->driver) && isset($db_type)) { $this->driver = $db_type; }
+					if (!isset($this->type) && isset($db_type)) { $this->type = $db_type; }
+					if (!isset($this->host) && isset($db_host)) { $this->host = $db_host; }
+					if (!isset($this->port) && isset($db_port)) { $this->port = $db_port; }
+					if (!isset($this->db_name) && isset($db_name)) { $this->db_name = $db_name; }
+					if (!isset($this->db_secure) && isset($db_secure)) {
+						$this->db_secure = $db_secure;
+					}
+					else {
+						$this->db_secure = false;
+					}
+					if (!isset($this->username) && isset($db_username)) { $this->username = $db_username; }
+					if (!isset($this->password) && isset($db_password)) { $this->password = $db_password; }
+					if (!isset($this->path) && isset($db_path)) { $this->path = $db_path; }
 
 				if ($this->driver == "sqlite") {
 					if (strlen($this->db_name) == 0) {
@@ -2068,7 +2066,7 @@ include "root.php";
 							//determine action update or delete and get the original data
 								if ($parent_key_exists) {
 									$sql = "SELECT ".implode(", ", $parent_field_names)." FROM ".$table_name." ";
-									$sql .= "WHERE ".$parent_key_name." = '".$parent_key_value."' ";
+									$sql .= "WHERE ".$parent_key_name." = '".$parent_key_value."'; ";
 									$prep_statement = $this->db->prepare($sql);
 									if ($prep_statement) {
 										//get the data
@@ -2077,6 +2075,7 @@ include "root.php";
 												$result = $prep_statement->fetchAll(PDO::FETCH_ASSOC);
 											}
 											catch(PDOException $e) {
+												echo $sql."<br />\n";
 												echo 'Caught exception: '.  $e->getMessage()."<br /><br />\n";
 												echo $sql. "<br /><br />\n";
 												exit;
@@ -2091,8 +2090,7 @@ include "root.php";
 												$action = "add";
 											}
 									}
-									unset($prep_statement);
-									unset($result);
+									unset($prep_statement, $result);
 								}
 								else {
 									$action = "add";
@@ -2132,7 +2130,6 @@ include "root.php";
 											}
 											if (is_array($array)) {
 												foreach ($array as $array_key => $array_value) {
-													
 													if (!is_array($array_value)) {
 														if ($array_key != 'insert_user' &&
 															$array_key != 'insert_date' &&
@@ -2160,7 +2157,6 @@ include "root.php";
 													}
 												}
 											}
-
 											$sql .= "now(), ";
 											$sql .= ":insert_user ";
 											$sql .= ");";
@@ -2269,7 +2265,7 @@ include "root.php";
 											$params['update_user'] = $_SESSION['user_uuid'];
 
 											//add the where with the parent name and value
-											$sql .= "WHERE ".$parent_key_name." = '".$parent_key_value."' ";
+											$sql .= "WHERE ".$parent_key_name." = '".$parent_key_value."'; ";
 											$sql = str_replace(", WHERE", " WHERE", $sql);
 
 											//add update user parameter
@@ -2388,27 +2384,36 @@ include "root.php";
 													//determine sql update or delete and get the original data
 														if ($uuid_exists) {
 															$sql = "SELECT ". implode(", ", $child_field_names)." FROM ".$child_table_name." ";
-															$sql .= "WHERE ".$child_key_name." = '".$child_key_value."' ";
-															$prep_statement = $this->db->prepare($sql);
-															if ($prep_statement) {
-																//get the data
-																	$prep_statement->execute();
-																	$child_array = $prep_statement->fetch(PDO::FETCH_ASSOC);
+															$sql .= "WHERE ".$child_key_name." = '".$child_key_value."'; ";
+															try {
+																$prep_statement = $this->db->prepare($sql);
+																if ($prep_statement) {
+																	//get the data
+																		$prep_statement->execute();
+																		$child_array = $prep_statement->fetch(PDO::FETCH_ASSOC);
 
-																//set the action
-																	if (is_array($child_array)) {
-																		$action = "update";
-																	}
-																	else {
-																		$action = "add";
-																	}
+																	//set the action
+																		if (is_array($child_array)) {
+																			$action = "update";
+																		}
+																		else {
+																			$action = "add";
+																		}
 
-																//add to the parent array
-																	if (is_array($child_array)) {
-																		$old_array[$schema_name][$schema_id][$key][] = $child_array;
-																	}
+																	//add to the parent array
+																		if (is_array($child_array)) {
+																			$old_array[$schema_name][$schema_id][$key][] = $child_array;
+																		}
+																}
+																unset($prep_statement);
 															}
-															unset($prep_statement);
+															catch(PDOException $e) {
+																echo $sql."<br />\n";
+																echo 'Caught exception: '.  $e->getMessage()."<br /><br />\n";
+																echo $sql. "<br /><br />\n";
+																exit;
+															}
+
 														}
 														else {
 															$action = "add";
@@ -2451,7 +2456,7 @@ include "root.php";
 
 																//add the where with the parent name and value
 																$sql .= "WHERE ".$parent_key_name." = '".$parent_key_value."' ";
-																$sql .= "AND ".$child_key_name." = '".$child_key_value."' ";
+																$sql .= "AND ".$child_key_name." = '".$child_key_value."'; ";
 																$sql = str_replace(", WHERE", " WHERE", $sql);
 
 																//set the error mode
@@ -2547,16 +2552,17 @@ include "root.php";
 																foreach ($row as $k => $v) {
 																	if (!is_array($v)) {
 																		$k = self::sanitize($k);
-																		$sql .= $k.", ";
+																		if ($k != 'insert_user' &&
+																		$k != 'insert_date' &&
+																		$k != 'update_user' && 
+																		$k != 'update_date') {
+																			$sql .= $k.", ";
+																		}
 																	}
 																}
 															}
-															if (!isset($row['insert_date'])) {
-																$sql .= "insert_date, ";
-															}
-															if (!isset($row['insert_user'])) {
-																$sql .= "insert_user ";
-															}
+															$sql .= "insert_date, ";
+															$sql .= "insert_user ";
 															$sql .= ") ";
 															$sql .= "VALUES ";
 															$sql .= "(";
@@ -2569,34 +2575,40 @@ include "root.php";
 															if (is_array($row)) {
 																foreach ($row as $k => $v) {
 																	if (!is_array($v)) {
-																		if (strlen($v) == 0) {
-																			$sql .= "null, ";
-																		}
-																		elseif ($v === "now()") {
-																			$sql .= "now(), ";
-																		}
-																		elseif ($v === "user_uuid()") {
-																			$sql .= ':'.$k.", ";
-																			$params[$k] = $_SESSION['user_uuid'];
-																		}
-																		elseif ($v === "remote_address()") {
-																			$sql .= ':'.$k.", ";
-																			$params[$k] = $_SERVER['REMOTE_ADDR'];
-																		}
-																		else {
-																			$k = self::sanitize($k);
-																			$sql .= ':'.$k.", ";
-																			$params[$k] = trim($v);
+																		if ($k != 'insert_user' &&
+																			$k != 'insert_date' &&
+																			$k != 'update_user' && 
+																			$k != 'update_date') {
+																			if (strlen($v) == 0) {
+																				$sql .= "null, ";
+																			}
+																			elseif ($v === "now()") {
+																				$sql .= "now(), ";
+																			}
+																			elseif ($v === "user_uuid()") {
+																				$sql .= ':'.$k.", ";
+																				$params[$k] = $_SESSION['user_uuid'];
+																			}
+																			elseif ($v === "remote_address()") {
+																				$sql .= ':'.$k.", ";
+																				$params[$k] = $_SERVER['REMOTE_ADDR'];
+																			}
+																			else {
+																				$k = self::sanitize($k);
+																				if ($k != 'insert_user' &&
+																				$k != 'insert_date' &&
+																				$k != 'update_user' && 
+																				$k != 'update_date') {
+																					$sql .= ':'.$k.", ";
+																					$params[$k] = trim($v);
+																				}
+																			}
 																		}
 																	}
 																}
 															}
-															if (!isset($row['insert_date'])) {
-																$sql .= "now(), ";
-															}
-															if (!isset($row['insert_user'])) {
-																$sql .= ":insert_user ";
-															}
+															$sql .= "now(), ";
+															$sql .= ":insert_user ";
 															$sql .= ");";
 
 															//add insert user parameter

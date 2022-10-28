@@ -24,8 +24,11 @@
 	Mark J Crane <markjcrane@fusionpbx.com>
 */
 
-//includes
-	require_once "root.php";
+//set the include path
+	$conf = glob("{/usr/local/etc,/etc}/fusionpbx/config.conf", GLOB_BRACE);
+	set_include_path(parse_ini_file($conf[0])['document.root']);
+
+//includes files
 	require_once "resources/require.php";
 	require_once "resources/check_auth.php";
 
@@ -430,8 +433,8 @@
 							}
 
 						//set the last destination_app and destination_data variables
-							foreach($destination_actions as $action) {
-								$action_array = explode(":", $action, 2);
+							foreach($destination_actions as $destination_action) {
+								$action_array = explode(":", $destination_action, 2);
 								if (isset($action_array[0]) && $action_array[0] != '') {
 									$destination_app = $action_array[0];
 									$destination_data = $action_array[1];
@@ -495,8 +498,8 @@
 							}
 
 							//add the actions to the dialplan_xml
-							foreach($destination_actions as $action) {
-								$action_array = explode(":", $action, 2);
+							foreach($destination_actions as $destination_action) {
+								$action_array = explode(":", $destination_action, 2);
 								if (isset($action_array[0]) && $action_array[0] != '') {
 									if ($destination->valid($action_array[0].':'.$action_array[1])) {
 										$dialplan["dialplan_xml"] .= "		<action application=\"".$action_array[0]."\" data=\"".$action_array[1]."\"/>\n";
@@ -885,8 +888,8 @@
 
 							//prepare the $actions array
 							$y=0;
-							foreach($destination_actions as $action) {
-								$action_array = explode(":", $action, 2);
+							foreach($destination_actions as $destination_action) {
+								$action_array = explode(":", $destination_action, 2);
 								$action_app = $action_array[0];
 								$action_data = $action_array[1];
 								if (isset($action_array[0]) && $action_array[0] != '') {
@@ -1452,10 +1455,12 @@
 	echo "</td>\n";
 	echo "<td class='vtable' align='left'>\n";
 	$x=0;
-	foreach($destination_actions as $row) {
-		echo $destination->select('dialplan', "destination_actions[$x]", $row['destination_app'].':'.$row['destination_data']);
-		echo "<br />\n";
-		$x++;
+	if (is_array($destination_actions)) {
+		foreach($destination_actions as $row) {
+			echo $destination->select('dialplan', "destination_actions[$x]", $row['destination_app'].':'.$row['destination_data']);
+			echo "<br />\n";
+			$x++;
+		}
 	}
 	echo $destination->select('dialplan', "destination_actions[$x]", '');
 	echo "	<br />\n";

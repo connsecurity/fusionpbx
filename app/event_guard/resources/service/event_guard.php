@@ -24,19 +24,16 @@
 
 //check the permission
 	if (defined('STDIN')) {
-		$document_root = str_replace("\\", "/", $_SERVER["PHP_SELF"]);
-		preg_match("/^(.*)\/app\/.*$/", $document_root, $matches);
-		$document_root = $matches[1];
-		set_include_path($document_root);
-		$_SERVER["DOCUMENT_ROOT"] = $document_root;
+		//set the include path
+		$conf = glob("{/usr/local/etc,/etc}/fusionpbx/config.conf", GLOB_BRACE);
+		set_include_path(parse_ini_file($conf[0])['document.root']);
+
+		//includes files
 		require_once "resources/require.php";
 	}
 	else {
 		//only allow running this from command line
 		exit;
-		include "root.php";
-		require_once "resources/require.php";
-		require_once "resources/pdo.php";
 	}
 
 //increase limits
@@ -163,6 +160,9 @@
 				echo "Re-connected to event socket\n";
 			}
 			else {
+				//unable to connect to event socket
+				echo "Unable to connect to event socket\n";
+
 				//sleep and then attempt to reconnect
 				sleep(1);
 				continue;
@@ -589,12 +589,12 @@
 			return false;
 		}
 
-		//get the access control allowed nodes
+		//check to see if the address was authenticated successfully
 		$sql = "select count(user_log_uuid) ";
 		$sql .= "from v_user_logs ";
-		$sql .= "where ip_address = :ip_address ";
+		$sql .= "where remote_address = :remote_address ";
 		$sql .= "and result = 'success' ";
-		$parameters['ip_address'] = $ip_address;  
+		$parameters['remote_address'] = $ip_address;  
 		$database = new database;
 		$user_log_count = $database->select($sql, $parameters, 'column');
 		unset($database);

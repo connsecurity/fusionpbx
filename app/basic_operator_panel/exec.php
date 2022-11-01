@@ -72,7 +72,8 @@ if (count($_GET) > 0) {
 			if ($switch_cmd == 'originate') {
 				$source = preg_replace($num_pattern,'',$_GET['source']);
 				$destination = preg_replace($num_pattern,'',$_GET['destination']);
-				$api_cmd = 'bgapi originate {sip_auto_answer=true,origination_caller_id_number=' . $source . ',sip_h_Call-Info=_undef_}user/' . $source . '@' . $_SESSION['domain_name'] . ' ' . $destination . ' XML ' . trim($_SESSION['user_context']);
+				//$api_cmd = 'bgapi originate {sip_auto_answer=true,origination_caller_id_number=' . $source . ',sip_h_Call-Info=_undef_}user/' . $source . '@' . $_SESSION['domain_name'] . ' ' . $destination . ' XML ' . trim($_SESSION['user_context']);
+				$api_cmd = 'bgapi originate {origination_caller_id_number=' . $source . ',sip_h_Call-Info=_undef_}user/' . $source . '@' . $_SESSION['domain_name'] . ' ' . $destination . ' XML ' . trim($_SESSION['user_context']);
 			} elseif ($switch_cmd == 'uuid_record') {
 				$uuid = preg_replace($uuid_pattern,'',$_GET['uuid']);
 				$api_cmd = 'uuid_record ' . $uuid . ' start ' . $_SESSION['switch']['recordings']['dir'] . '/' . $_SESSION['domain_name'] . '/archive/' . date('Y/M/d') . '/' . $uuid . '.wav';

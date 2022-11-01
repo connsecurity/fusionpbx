@@ -3032,6 +3032,42 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 	display: block;
 	text-align: left;
 	}
+
+
+/* AGENT PANEL ************************************************************************/
+
+.agent-panel {
+	
+}
+
+.agent-panel div {
+	border: solid;
+	border-radius: 4px;
+	border-color: #AFC8FF;
+	border-width: 3px;
+}
+
+.agent-panel #received {
+	float: left;
+	width: 70%;
+}
+
+.agent-panel #answered {
+	float: left;
+	width: 70%;
+}
+
+.agent-panel #contacts {
+	float: right;
+	width: 30%;
+}
+
+.agent-panel #phone {
+	float: right;
+	width: 30%;
+}
+
+
 <?php
 
 //output custom css

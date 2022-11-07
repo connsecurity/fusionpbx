@@ -3037,37 +3037,92 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 /* AGENT PANEL ************************************************************************/
 
 .agent-panel {
-	
+
 }
 
-.agent-panel div {
+.agent-panel > div {
 	border: solid;
 	border-radius: 4px;
 	border-color: #AFC8FF;
 	border-width: 3px;
+	margin-top: 4px;
+	max-height: 44vh;
+
+	word-wrap: break-word;
+	white-space: pre-wrap;
+	word-break: break-word;
+
+	overflow-y: scroll;
 }
 
-.agent-panel #received {
+.agent-panel > #received {
 	float: left;
-	width: 70%;
+	width: 69%;	
 }
 
-.agent-panel #answered {
+.agent-panel > #answered {
 	float: left;
-	width: 70%;
+	width: 69%;
 }
 
-.agent-panel #contacts {
+.agent-panel > #contacts {
 	float: right;
-	width: 30%;
+	width: 29%;
+	min-height: 60vh;
 }
 
-.agent-panel #phone {
+.agent-panel > #phone {
 	float: right;
-	width: 30%;
+	width: 29%;
+	min-height: 20vh;
 }
 
+.agent-panel > #contacts > table {
+	width: 100%;
+	padding: 6px;
+	border-collapse: separate;
+    border-spacing: 0 1em;
+}
+.agent-panel > #contacts > table > tbody > tr {
+	position: relative;
+	border-style: solid;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-box-shadow: 0 0 3px <?php echo $_SESSION['theme']['form_table_field_background_color']['text']; ?>;
+	-moz-box-shadow: 0 0 3px <?php echo $_SESSION['theme']['form_table_field_background_color']['text']; ?>;
+	box-shadow: 0 0 3px <?php echo $_SESSION['theme']['form_table_field_background_color']['text']; ?>;
+	border-width: 1px 3px;
+	border-color: <?php echo $_SESSION['theme']['operator_panel_border_color']['text']; ?>;
+	background-color: <?php echo $_SESSION['theme']['form_table_label_background_color']['text']; ?>;
+	opacity: 0.5;
+}
 
+.agent-panel > #contacts > table > tbody > tr > td > label {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	background_color: black;
+}
+
+[type=radio].agent_panel_contact {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+[type=radio].agent_panel_contact + div {
+	cursor: pointer;
+	padding: 1px;
+	background-clip: padding-box;
+}
+
+[type=radio].agent_panel_contact:checked + div {
+	color: white;
+	border-color: red;
+	background-color: blue;
+}
 <?php
 
 //output custom css

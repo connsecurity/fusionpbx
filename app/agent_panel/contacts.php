@@ -7,6 +7,8 @@ set_include_path(parse_ini_file($conf[0])['document.root']);
 //includes files
 require_once "resources/require.php";
 require_once "resources/check_auth.php";
+require_once "get_agent.php";
+
 
 //check permissions
 if (permission_exists('xml_cdr_view')) {
@@ -44,10 +46,10 @@ foreach ($contacts as $contact) {
     $table .= "<div id='".$contact['contact_nickname']."'>";
     $table .= "Apelido: ".$contact['contact_nickname'];
     $table .= "<br>Telefone: ".$contact['phone_number'];
-    //$table .= "</div></label></tr>";
+    $table .= "</div></label></tr>";
 }
 
-//$table .= "</tbody>";
+$table .= "</tbody>";
 
 echo json_encode($table, JSON_UNESCAPED_UNICODE);
 

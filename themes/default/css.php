@@ -3001,43 +3001,11 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 	margin: <?php echo $_SESSION['theme']['modal_title_margin']['text'] != '' ? $_SESSION['theme']['modal_title_margin']['text'] : '0 0 15px 0'; ?>;
 	}
 
-.modal-close {
-	color: <?php echo $_SESSION['theme']['modal_close_color']['text'] != '' ? $_SESSION['theme']['modal_close_color']['text'] : '#aaa'; ?>;
-	line-height: 50px;
-	font-size: 150%;
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 50px;
-	text-align: center;
-	text-decoration: none !important;
-	cursor: pointer;
-	border-radius: <?php echo $_SESSION['theme']['modal_close_corner_radius']['text'] != '' ? $_SESSION['theme']['modal_close_corner_radius']['text'] : '0 0 0 5px'; ?>;
-	background: <?php echo $_SESSION['theme']['modal_close_background_color']['text'] != '' ? $_SESSION['theme']['modal_close_background_color']['text'] : '#fff'; ?>;
-	}
-
-.modal-close:hover {
-	color: <?php echo $_SESSION['theme']['modal_close_color_hover']['text'] != '' ? $_SESSION['theme']['modal_close_color_hover']['text'] : '#000'; ?>;
-	background: <?php echo $_SESSION['theme']['modal_close_background_color_hover']['text'] != '' ? $_SESSION['theme']['modal_close_background_color_hover']['text'] : '#fff'; ?>;
-	}
-
-.modal-ac-window .modal-message {
-	display: block;
-	color: <?php echo $_SESSION['theme']['modal_message_color']['text'] != '' ? $_SESSION['theme']['modal_message_color']['text'] : '#444'; ?>;
-	text-align: <?php echo $_SESSION['theme']['modal_message_alignment']['text'] != '' ? $_SESSION['theme']['modal_message_alignment']['text'] : 'left'; ?>;
-	margin: <?php echo $_SESSION['theme']['modal_message_margin']['text'] != '' ? $_SESSION['theme']['modal_message_margin']['text'] : '0 0 20px 0'; ?>;
-	}
-
-.modal-actions {
-	display: block;
-	text-align: left;
-	}
-
 
 /* AGENT PANEL ************************************************************************/
 
 .agent-panel {
-
+	height: 88vh;
 }
 
 .agent-panel > div {
@@ -3046,40 +3014,68 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 	border-color: #AFC8FF;
 	border-width: 3px;
 	margin-top: 4px;
-	max-height: 44vh;
+}
+
+.agent-panel > #received {
+	float: left;
+	width: 69%;	
+	height: 50%;
 
 	word-wrap: break-word;
 	white-space: pre-wrap;
 	word-break: break-word;
 
 	overflow-y: scroll;
-}
 
-.agent-panel > #received {
-	float: left;
-	width: 69%;	
 }
 
 .agent-panel > #answered {
 	float: left;
 	width: 69%;
+	height: 50%;
+
+	word-wrap: break-word;
+	white-space: pre-wrap;
+	word-break: break-word;
+
+	overflow-y: scroll;
+
 }
 
 .agent-panel > #contacts {
 	float: right;
 	width: 29%;
-	min-height: 60vh;
+	height: 80%;
+	overflow-y: scroll;
+}
+
+.agent-panel > #contacts > #contact_action_bar {
+	display: flex;
+    justify-content: space-between;
 }
 
 .agent-panel > #phone {
 	float: right;
 	width: 29%;
-	min-height: 20vh;
+	height: 20%;
+	display: flex;
+    justify-content: space-between;
+	flex-direction: column;
+}
+
+.agent-panel > #phone > #phone_action_bar {
+}
+
+.agent-panel > #phone > #phone_status {
+}
+
+.agent-panel > #phone > #phone_cmd {
 }
 
 .agent-panel > #contacts > table {
 	width: 100%;
 	padding: 6px;
+	position: relative;
 	border-collapse: separate;
     border-spacing: 0 1em;
 }
@@ -3122,6 +3118,31 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 	color: white;
 	border-color: red;
 	background-color: blue;
+}
+
+.modal-window > #modal-content {
+	position: relative;
+	padding: <?php echo $_SESSION['theme']['modal_padding']['text'] != '' ? $_SESSION['theme']['modal_padding']['text'] : '15px 20px 20px 20px'; ?>;
+	background: <?php echo $_SESSION['theme']['modal_background_color']['text'] != '' ? $_SESSION['theme']['modal_background_color']['text'] : '#fff'; ?>;
+	overflow: auto;
+}
+
+@media(min-width: 0px) and (max-width: 699px) {
+	.modal-window > #modal-content {
+		width: 100%;
+		min-width: 200px;
+		margin: 50px auto;
+		border-radius: 0;
+	}
+}
+
+@media(min-width: 700px) {
+	.modal-window > #modal-content {
+		width: <?php echo $_SESSION['theme']['modal_width']['text'] != '' ? $_SESSION['theme']['modal_width']['text'] : '500px'; ?>;
+		margin: 2% auto;
+		border-radius: <?php echo $_SESSION['theme']['modal_corner_radius']['text'] != '' ? $_SESSION['theme']['modal_corner_radius']['text'] : '5px'; ?>;
+		box-shadow: <?php echo $_SESSION['theme']['modal_shadow']['text'] != '' ? $_SESSION['theme']['modal_shadow']['text'] : '0 0 40px rgba(0,0,0,0.25)'; ?>;
+	}
 }
 <?php
 

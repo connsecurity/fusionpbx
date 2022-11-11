@@ -68,7 +68,9 @@
 	$sql .=	"order by \n";
 	$sql .=	"start_epoch desc \n";
 	$parameters['domain_uuid'] = $_SESSION['domain_uuid'];
-	$database = new database;
+	//echo $sql;
+	//view_array($parameters);
+	if (!isset($database)) { $database = new database; }
 	$result = $database->select($sql, $parameters, 'all');
 
 	//var_dump($result);

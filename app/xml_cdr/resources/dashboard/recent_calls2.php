@@ -65,7 +65,7 @@ set_include_path(parse_ini_file($conf[0])['document.root']);
 
 
 
-
+	unset ($assigned_extensions);
 //get the recent calls from call detail records
 	$sql = "
 		select
@@ -82,10 +82,10 @@ set_include_path(parse_ini_file($conf[0])['document.root']);
 			v_xml_cdr
 		where
 			domain_uuid = :domain_uuid 
-		and
-			direction = 'inbound' 
 		and 
-			caller_id_number ~ '.{6}' ";
+			caller_id_number ~ '.{1}' 
+		and
+			last_app <> 'ivr' ";
 			if (is_array($assigned_extensions) && sizeof($assigned_extensions) != 0) {
 				$x = 0;
 				foreach ($assigned_extensions as $assigned_extension_uuid => $assigned_extension) {

@@ -49,77 +49,63 @@ set_include_path(parse_ini_file($conf[0])['document.root']);
 		foreach ($call_groups_extensions as $extension) {
 			$extensions_list[] = $extension['extension_uuid'];
 		}
-	}
-    
+	}    
     unset($sql, $parameters, $call_groups_extensions);
 
 //set delimiters    
     $today = strtotime("-3 hours");    
     $tomorrow = strtotime("+1 day", $today);
     $parameters['start_last_month'] = strtotime("first day of last month 00:00:00", $today); // first day of previous month
-    $parameters['end_last_month'] = strtotime("last day of last month 23:59:59", $today); //last day of previous month 
-    $parameters['start_last_month_2'] = $parameters['start_last_month'];//strtotime("first day of last month 00:00:00", $today);   
-    $parameters['end_last_month_2'] = $parameters['end_last_month'];//strtotime("last day of last month 23:59:59", $today); 
-    $parameters['start_this_month'] = strtotime("first day of this month 00:00:00", $today); //first day of current month    
-    $parameters['start_this_month_2'] = $parameters['start_this_month'];//strtotime("first day of this month 00:00:00", $today);
+    $parameters['end_last_month'] = strtotime("last day of last month 23:59:59", $today); //last day of previous month    
+    $parameters['start_this_month'] = strtotime("first day of this month 00:00:00", $today); //first day of current month
+    //$parameters['end_this_month'] = strtotime("last day of this month 23:59:59", $today); //last day of current month
     $parameters['start_last_week'] = strtotime("-2 week sunday 00:00:00", $tomorrow); //start of previous week
     $parameters['end_last_week'] = strtotime("-1 week saturday 23:59:59", $tomorrow); //end of previous week
-    $parameters['start_last_week_2'] = $parameters['start_last_week'];//strtotime("-2 week sunday 00:00:00", $tomorrow);
-    $parameters['end_last_week_2'] = $parameters['end_last_week'];//strtotime("-1 week saturday 23:59:59", $tomorrow);
     $parameters['start_this_week'] = strtotime("last sunday 00:00:00", $tomorrow); //start of this week
-    $parameters['start_this_week_2'] = $parameters['start_this_week'];//strtotime("last sunday 00:00:00", $tomorrow);
     $parameters['start_yesterday'] = strtotime("yesterday", $today);
     $parameters['end_yesterday'] = strtotime("yesterday 23:59:59", $today);
-    $parameters['start_yesterday_2'] = $parameters['start_yesterday'];//strtotime("yesterday", $today);
-    $parameters['end_yesterday_2'] = $parameters['end_yesterday'];//strtotime("yesterday 23:59:59", $today);
     $parameters['start_today'] = strtotime("00:00:00", $today);
-    $parameters['start_today_2'] = $parameters['start_today'];//strtotime("00:00:00", $today);
-    $parameters['start_select'] = $parameters['start_last_month'];//strtotime("first day of last month 00:00:00", $today);
+    $parameters['start_select'] = strtotime("first day of last month 00:00:00", $today);
 
 //select the averages
     $sql = "
             select 
-                (count(case when answer_epoch > 0 and start_epoch >= :start_today then 1 end) * 100.0
-                /nullif(count(case when start_epoch >= :start_today_2 then 1 end), 0)) as today,
-
-                (count(case when answer_epoch > 0 and start_epoch >= :start_yesterday and start_epoch <= :end_yesterday then 1 end) * 100.0
-                /nullif(count(case when start_epoch >= :start_yesterday_2 and start_epoch <= :end_yesterday_2 then 1 end), 0)) as yesterday,
-
-                (count(case when answer_epoch > 0 and start_epoch >= :start_this_week then 1 end) * 100.0
-                /nullif(count(case when start_epoch >= :start_this_week_2 then 1 end), 0)) as this_week,
-
-                (count(case when answer_epoch > 0 and start_epoch >= :start_last_week and start_epoch <= :end_last_week then 1 end) * 100.0
-                /nullif(count(case when start_epoch >= :start_last_week_2 and start_epoch <= :end_last_week_2 then 1 end), 0)) as last_week,
-
-                (count(case when answer_epoch > 0 and start_epoch >= :start_this_month then 1 end) * 100.0
-                /nullif(count(case when start_epoch >= :start_this_month_2 then 1 end), 0)) as this_month,
-
-                (count(case when answer_epoch > 0 and start_epoch >= :start_last_month and start_epoch <= :end_last_month then 1 end) * 100.0
-                /nullif(count(case when start_epoch >= :start_last_month_2 and start_epoch <= :end_last_month_2 then 1 end), 0)) as last_month
+                avg(case when start_epoch >= :start_today then tta end) as today,
+                avg(case when start_epoch >= :start_yesterday and start_epoch <= :end_yesterday then tta end) as yesterday,
+                avg(case when start_epoch >= :start_this_week then tta end) as this_week,
+                avg(case when start_epoch >= :start_last_week and start_epoch <= :end_last_week then tta end) as last_week,
+                avg(case when start_epoch >= :start_this_month then tta end) as this_month,
+                avg(case when start_epoch >= :start_last_month and start_epoch <= :end_last_month then tta end) as last_month
             from
-                v_xml_cdr
-            where
-                domain_uuid = :domain_uuid ";
-            if (is_array($extensions_list) && sizeof($extensions_list) != 0)
-            {
-                $x = 0;
-                foreach ($extensions_list as $extension_uuid) {
-                    $sql_where_array[] = "extension_uuid = :extension_uuid_".$x;
-                    $parameters['extension_uuid_'.$x] = $extension_uuid;
-                    $x++;
+            (
+                select
+                    (bridge_epoch - progress_epoch) as tta, start_epoch
+                from
+                    v_xml_cdr
+                where
+                    domain_uuid = :domain_uuid ";
+                if (is_array($extensions_list) && sizeof($extensions_list) != 0)
+                {
+                    $x = 0;
+                    foreach ($extensions_list as $extension_uuid) {
+                        $sql_where_array[] = "extension_uuid = :extension_uuid_".$x;
+                        $parameters['extension_uuid_'.$x] = $extension_uuid;
+                        $x++;
+                    }
+                    $sql .= "and (".implode(' or ', $sql_where_array).") ";
+                    unset($sql_where_array);				
                 }
-                $sql .= "and (".implode(' or ', $sql_where_array).") ";
-                unset($sql_where_array);				
-            }
-            $sql .= "
-            and
-                caller_id_number ~ '.{1}'
-            and
-                start_epoch >= :start_select";            
+                $sql .= "
+                and
+                    caller_id_number ~ '.{1}'
+                and
+                    bridge_epoch > 0
+                and
+                    start_epoch > :start_select
+            ) tmp";  
 
     $parameters['domain_uuid'] = $_SESSION['domain_uuid'];
-    $result = $database->select($sql, $parameters, 'row');  
-    //var_dump($result);
+    $result = $database->select($sql, $parameters, 'row');    
 
     //define row styles
 	$c = 0;
@@ -132,65 +118,65 @@ set_include_path(parse_ini_file($conf[0])['document.root']);
     //draw doughnut chart
     ?>
 	<div style='display: flex; flex-wrap: wrap; justify-content: center; padding-bottom: 20px;'>
-		<div style='width: 175px; height: 175px;'><canvas id='answer_rate_chart'></canvas></div>
+		<div style='width: 175px; height: 175px;'><canvas id='time_to_answer_chart'></canvas></div>
 	</div>
 
 	<script>
-		var answer_rate_chart_context = document.getElementById('answer_rate_chart').getContext('2d');
+		var time_to_answer_chart_context = document.getElementById('time_to_answer_chart').getContext('2d');
 
-		const answer_rate_chart_data = {
+		const time_to_answer_chart_data = {
 			datasets: [{
 				data: ['<?php echo $result["today"]; ?>', 0.00001],
-				backgroundColor: ['<?php echo $_SESSION['dashboard']['answer_rate_chart_main_background_color']['text']; ?>',
+				backgroundColor: ['<?php echo $_SESSION['dashboard']['time_to_answer_chart_main_background_color']['text']; ?>',
 				'<?php echo $_SESSION['dashboard']['missed_calls_chart_sub_background_color']['text']; ?>'],
-				borderColor: '<?php echo $_SESSION['dashboard']['answer_rate_chart_border_color']['text']; ?>',
-				borderWidth: '<?php echo $_SESSION['dashboard']['answer_rate_chart_border_width']['text']; ?>',
+				borderColor: '<?php echo $_SESSION['dashboard']['time_to_answer_chart_border_color']['text']; ?>',
+				borderWidth: '<?php echo $_SESSION['dashboard']['time_to_answer_chart_border_width']['text']; ?>',
 				cutout: chart_cutout
 			}]
 		};
 
-		const answer_rate_chart_config = {
+		const time_to_answer_chart_config = {
 			type: 'doughnut',
-			data: answer_rate_chart_data,
+			data: time_to_answer_chart_data,
 			options: {
 				responsive: true,
 				maintainAspectRatio: false,
 				plugins: {
 					chart_counter: {
-						chart_text: '<?php echo number_format($result["today"], 1); ?>%'
+						chart_text: '<?php echo (($result["today"] > 0 && $result["today"] < 1000) ? number_format($result["today"], 1) : "---"); ?>s'
 					},
 					legend: {
 						display: false
 					},
 					title: {
 						display: true,
-						text: '<?php echo $text['label-answer_rate']; ?>'
+						text: '<?php echo $text['label-time_to_answer']; ?>'
 					}
 				}
 			},
 			plugins: [chart_counter],
 		};
 
-		const answer_rate_chart = new Chart(
-			answer_rate_chart_context,
-			answer_rate_chart_config
+		const time_to_answer_chart = new Chart(
+			time_to_answer_chart_context,
+			time_to_answer_chart_config
 		);
 	</script>
 	<?php
 
-    echo "<div class='hud_details hud_box' id='hud_answer_rate_details'>";
+    echo "<div class='hud_details hud_box' id='hud_time_to_answer_details'>";
     echo "<table class='tr_hover' width='100%' cellpadding='0' cellspacing='0' border='0'>\n";
     echo "<tr>\n";
     echo "<th class='hud_heading'>&nbsp;</th>\n";
     echo "<th class='hud_heading' width='100%'>".$text['label-period']."</th>\n";
-    echo "<th class='hud_heading'>".$text['label-percent']."</th>\n";
+    echo "<th class='hud_heading'>".$text['label-seconds']."</th>\n";
     echo "</tr>\n";
 
-    foreach ($result as $period => $percent) {
+    foreach ($result as $period => $seconds) {
         echo "<tr>\n";
         echo "<td valign='top' class='".$row_style[$c]." hud_text' nowrap='nowrap'></td>";
         echo "<td valign='top' class='".$row_style[$c]." hud_text' nowrap='nowrap'>".$text['label-tta_'.$period]."</td>\n";
-        echo "<td valign='top' class='".$row_style[$c]." hud_text' nowrap='nowrap'>".(($percent != 0) ? number_format($percent, 1) : "-------")."%</td>\n";
+        echo "<td valign='top' class='".$row_style[$c]." hud_text' nowrap='nowrap'>".(($seconds > 0 && $seconds < 1000) ? number_format($seconds, 1) : "----")."s</td>\n";
         echo "</tr>\n";
     }    
 
@@ -239,7 +225,7 @@ set_include_path(parse_ini_file($conf[0])['document.root']);
     // echo "<br>".$parameters['end_yesterday'].": parameters['end_yesterday'] ".date("D d M H:i:s", $parameters['end_yesterday']);
     // $parameters['start_today'] = strtotime("00:00:00", $today);
 
-    echo "<span class='hud_expander' onclick=\"$('#hud_answer_rate_details').slideToggle('fast');\"><span class='fas fa-ellipsis-h'></span></span>";
+    echo "<span class='hud_expander' onclick=\"$('#hud_time_to_answer_details').slideToggle('fast');\"><span class='fas fa-ellipsis-h'></span></span>";
     echo "</div>\n";    
     
   

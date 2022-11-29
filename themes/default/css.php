@@ -2877,7 +2877,10 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 		-moz-transition: all <?php echo $_SESSION['theme']['modal_transition_seconds']['text'] != '' ? $_SESSION['theme']['modal_transition_seconds']['text'] : '0.3'; ?>s;
 		transition: all <?php echo $_SESSION['theme']['modal_transition_seconds']['text'] != '' ? $_SESSION['theme']['modal_transition_seconds']['text'] : '0.3'; ?>s;
 		background: <?php echo $_SESSION['theme']['modal_shade_color']['text'] != '' ? $_SESSION['theme']['modal_shade_color']['text'] : 'rgba(0, 0, 0, 0.3)'; ?>;
-		}
+
+		max-height: 100%;
+		overflow-y: auto;
+	}
 
 	.modal-window > div {
 		position: relative;
@@ -3020,10 +3023,10 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 	float: left;
 	width: 69%;	
 	height: 50%;
-
-	word-wrap: break-word;
-	white-space: pre-wrap;
-	word-break: break-word;
+	
+	/* word-wrap: break-word; */ 
+	/* white-space: pre-wrap; */
+	/* word-break: break-word; */
 
 	overflow-y: scroll;
 
@@ -3034,9 +3037,9 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 	width: 69%;
 	height: 50%;
 
-	word-wrap: break-word;
-	white-space: pre-wrap;
-	word-break: break-word;
+	/* word-wrap: break-word; */ 
+	/* white-space: pre-wrap; */
+	/* word-break: break-word; */
 
 	overflow-y: scroll;
 

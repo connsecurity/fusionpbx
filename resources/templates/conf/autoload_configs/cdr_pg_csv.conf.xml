@@ -78,6 +78,9 @@
     <field var="hangup_cause_q850"/>
     <field var="sip_hangup_disposition"/>
 
+    <field var="bridge_epoch"/>
+    <field var="progress_epoch"/>
+
     <!-- <field var="sip_hangup_disposition"/> -->
     <!-- <field var="ani"/> -->
   </schema>

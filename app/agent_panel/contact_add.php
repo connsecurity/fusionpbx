@@ -63,7 +63,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $array['contacts'][0]['contact_emails'][0]['domain_uuid'] = $_SESSION['domain_uuid'];
     $array['contacts'][0]['contact_emails'][0]['contact_uuid'] = $contact_uuid;
-    $array['contacts'][0]['contact_emails'][0]['email_address'] = $_POST['contact_emails'][0]['email_address'];    
+    $array['contacts'][0]['contact_emails'][0]['email_address'] = $_POST['contact_emails'][0]['email_address']; 
+    
+    //if want to associate
+    if ($_POST['associate_relation'] == 'true') {
+        $contact_relation_uuid = uuid();
+		$array['contact_relations'][0]['contact_relation_uuid'] = $contact_relation_uuid;
+        $array['contact_relations'][0]['contact_uuid'] = $_SESSION['user']['contact_uuid'];
+        $array['contact_relations'][0]['domain_uuid'] = $_SESSION['domain_uuid'];
+        $array['contact_relations'][0]['relation_label'] = "Customer";
+        $array['contact_relations'][0]['relation_contact_uuid'] = $contact_uuid;
+
+        $contact_relation_uuid = uuid();
+        $array['contact_relations'][1]['contact_relation_uuid'] = $contact_relation_uuid;
+        $array['contact_relations'][1]['domain_uuid'] = $_SESSION['domain_uuid'];
+        $array['contact_relations'][1]['contact_uuid'] = $contact_uuid;
+        $array['contact_relations'][1]['relation_label'] = "Agent";
+        $array['contact_relations'][1]['relation_contact_uuid'] = $_SESSION['user']['contact_uuid'];        
+    }
 
     //save the data
     if (is_array($array) && @sizeof($array) != 0) {
@@ -88,6 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $p->delete('contact_user_add', 'temp');
         $p->delete('contact_group_add', 'temp');
     }
+
+    //save association
+    
 
     echo json_encode($message);
     exit;
@@ -366,6 +386,13 @@ $form .= "		</div>\n";
 $form .= "		<div class='field no-wrap'>\n";
 $form .= "			<textarea class='formfld' style='width: 100%; height: 100%;' name='contact_note'>".$contact_note."</textarea>\n";
 $form .= "		</div>\n";
+
+$form .= "		<div class='label'>\n";
+$form .= "			".$text['label-contact_relation']."\n";
+$form .= "		</div>\n";
+//$form .= "		<div class='field no-wrap'>\n";
+$form .= "			<input class='formfld' type='checkbox' name='associate_relation' value='true'>\n";
+//$form .= "		</div>\n";
 
 
 $form .= "	</div>\n";

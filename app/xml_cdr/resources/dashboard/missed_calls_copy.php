@@ -43,13 +43,14 @@
 	$sql .=	"	v_xml_cdr \n";
 	$sql .=	"where \n";
 	$sql .=	"	domain_uuid = :domain_uuid \n";
-	$sql .=	"	and ( \n";
-	$sql .=	"		direction = 'inbound' \n";
+	//$sql .=	"	and ( \n";
+	//$sql .=	"		direction = 'inbound' \n";
 	//$sql .=	"		or direction = 'local' \n";
-	$sql .=	"	) \n";
-	$sql .=	"	and (missed_call = true or bridge_uuid is null) ";
-	$sql .=	"	and hangup_cause <> 'LOSE_RACE' ";
-	$sql .= "	and caller_id_number ~ '.{6}' ";
+	//$sql .=	"	) \n";
+	$sql .= "	and last_app <> 'ivr' ";
+	$sql .=	"	and (missed_call = true or bridge_uuid is null) ";	
+	//$sql .= "	and caller_id_number ~ '.{6}' ";
+	$sql .=	"	and hangup_cause <> 'LOSE_RACE' ";	
 	if (is_array($assigned_extensions) && sizeof($assigned_extensions) != 0) {
 		$x = 0;
 		foreach ($assigned_extensions as $assigned_extension_uuid => $assigned_extension) {

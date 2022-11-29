@@ -23,10 +23,26 @@ if (permission_exists('xml_cdr_view')) {
 $language = new text;
 $text = $language->get();
 
+//set the time zone
+if (isset($_SESSION['domain']['time_zone']['name'])) {
+    $time_zone = $_SESSION['domain']['time_zone']['name'];
+}
+else {
+    $time_zone = date_default_timezone_get();
+}
+$parameters['time_zone'] = $time_zone;
+
 //get cdr
 $sql = "SELECT ";
 //$sql .=     "caller_id_name, caller_id_number, caller_destination, source_number, destination_number, start_epoch, start_stamp ";
-$sql .=     "direction, caller_id_number, destination_number, start_stamp, answer_epoch ";
+$sql .= "   direction, ";
+$sql .= "   caller_id_number, ";
+$sql .= "   destination_number, ";
+$sql .= "   to_char(timezone(:time_zone, start_stamp), 'DD Mon YYYY') as start_date_formatted, ";
+$sql .= "   to_char(timezone(:time_zone, start_stamp), 'HH24:MI:SS') as start_time_formatted, ";
+$sql .= "   answer_epoch, ";
+$sql .= "   bridge_uuid, ";
+$sql .= "   sip_hangup_disposition ";
 $sql .= "FROM ";
 $sql .=     "v_xml_cdr ";
 $sql .= "WHERE ";
@@ -53,23 +69,73 @@ foreach ($_SESSION['agent']['extension'] as $extension) {
 $sql .= implode(' OR ', $sql_where_array);	
 $sql .= "ORDER BY ";
 $sql .= 	"start_epoch ";
-$sql .= "ASC ";
+$sql .= "DESC ";
+$sql .= "LIMIT 50 ";
 
 $parameters['domain_uuid'] = $_SESSION['domain_uuid'];
 $database = new database;
 $call_records = $database->select($sql, $parameters, 'all');
 
-foreach ($call_records as $call_record) {
-    $table .= "<tr class='list-row'>";
-    foreach ($call_record as $column) {
-        $table .= "<td class='middle'>";
-        $table .= $column;
-        //$table .= "</td>";
+foreach ($call_records as $row) {
+    $table .= "<tr class='list-row'>\n";
+
+    //direction
+    $table .= "<td class='middle'>\n";
+    if ($row['direction'] == 'inbound' || $row['direction'] == 'local') {
+        if ($row['answer_epoch'] != 0 && $row['bridge_uuid'] != '') { $call_result = 'answered'; }
+        else if ($row['answer_epoch'] != 0 && $row['bridge_uuid'] == '') { $call_result = 'voicemail'; }
+        else if ($row['answer_epoch'] == 0 && $row['bridge_uuid'] == '' && $row['sip_hangup_disposition'] != 'send_refuse') { $call_result = 'cancelled'; }
+        else { $call_result = 'failed'; }
     }
-    //$table .= "</tr>";
+    else if ($row['direction'] == 'outbound') {
+        if ($row['answer_epoch'] != 0 && $row['bridge_uuid'] != '') { $call_result = 'answered'; }
+        else if ($row['answer_epoch'] == 0 && $row['bridge_uuid'] != '') { $call_result = 'cancelled'; }
+        else { $call_result = 'failed'; }
+    }
+    if (strlen($row['direction']) > 0) {
+        $image_name = "icon_cdr_" . $row['direction'] . "_" . $call_result;
+        if ($row['leg'] == 'b') {
+            $image_name .= '_b';
+        }
+        $image_name .= ".png";
+        $table .= "<img src='".PROJECT_PATH."/themes/".$_SESSION['domain']['template']['name']."/images/".escape($image_name)."' width='16' style='border: none; cursor: help;' title='".$text['label-'.$row['direction']].": ".$text['label-'.$call_result]. ($row['leg']=='b'?'(b)':'') . "'>\n";
+    }
+    $table .= "</td>\n";
+
+    //caller_id_number
+    $table .= "	<td class='middle no-link no-wrap'>";
+    if (is_numeric($row['caller_id_number'])) {
+        $table .= "		".escape(format_phone(substr($row['caller_id_number'], 0, 20))).' ';
+    }
+    else {
+        $table .= "		".escape(substr($row['caller_id_number'], 0, 20)).' ';
+    }
+    $table .= "	</td>\n";
+
+    //destination_number
+    $table .= "	<td class='middle no-link no-wrap'>";
+    if (is_numeric($row['destination_number'])) {
+        $table .= format_phone(escape(substr($row['destination_number'], 0, 20)))."\n";
+    }
+    else {
+        $table .= escape(substr($row['destination_number'], 0, 20))."\n";
+    }
+    $table .= "	</td>\n";
+
+    //start_stamp
+    $table .= "	<td class='middle right no-wrap'>".$row['start_date_formatted']."</td>\n";
+	$table .= "	<td class='middle right no-wrap hide-md-dn'>".$row['start_time_formatted']."</td>\n";
+
+
+    // foreach ($call_record as $column) {
+    //     $table .= "<td class='middle'>\n";
+    //     $table .= $column;
+    //     $table .= "</td>\n";
+    // }
+    $table .= "</tr>\n";
 }
 
-echo json_encode($table);
+echo json_encode($table, JSON_UNESCAPED_UNICODE);
 
 
 ?>

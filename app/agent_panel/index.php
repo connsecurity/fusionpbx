@@ -36,8 +36,8 @@ echo "              <tr class='list-header'>";
 echo "                  <th class='shrink'>".$text['label-direction']."</th>";
 echo "                  <th class='shrink'>".$text['label-caller_id_number']."</th>";
 echo "                  <th class='shrink'>".$text['label-destination_number']."</th>";
-echo "                  <th class='shrink'>".$text['label-start_stamp']."</th>";
-echo "                  <th class='shrink'>".$text['label-answer_epoch']."</th>";
+echo "                  <th class='center shrink'>".$text['label-date']."</th>";
+echo "                  <th class='center shrink hide-md-dn'>".$text['label-time']."</th>";
 echo "              </tr></tbody>";
 echo "          <tbody id='received_table'>";
 echo "          </tdbody></table>";
@@ -47,6 +47,30 @@ echo "	<div id='contacts'>";
 echo "      <div id='contact_action_bar'>";
 echo "      	<div class='heading'><b>".$text['title-contacts']."</b></div>";
 echo "	        <div class='actions'>";
+echo "              <input class='formfld' type='checkbox' id='associated_contacts' name='associated_contacts'>";
+echo "              <select class='formfld' id='contact_type' name='contact_type'>";
+if (is_array($_SESSION["contact"]["type"])) {
+	sort($_SESSION["contact"]["type"]);
+	echo "		<option value=''>All</option>\n";
+	foreach($_SESSION["contact"]["type"] as $type) {
+		echo "		<option value='".escape($type)."'>".escape($type)."</option>\n";
+	}
+}
+else {
+	echo "		<option value=''>All</option>\n";
+	echo "		<option value='customer' selected='selected'>".$text['option-contact_type_customer']."</option>\n";
+	echo "		<option value='contractor'>".$text['option-contact_type_contractor']."</option>\n";
+	echo "		<option value='friend'>".$text['option-contact_type_friend']."</option>\n";
+	echo "		<option value='lead'>".$text['option-contact_type_lead']."</option>\n";
+	echo "		<option value='member'>".$text['option-contact_type_member']."</option>\n";
+	echo "		<option value='family'>".$text['option-contact_type_family']."</option>\n";
+	echo "		<option value='subscriber'>".$text['option-contact_type_subscriber']."</option>\n";
+	echo "		<option value='supplier'>".$text['option-contact_type_supplier']."</option>\n";
+	echo "		<option value='provider'>".$text['option-contact_type_provider']."</option>\n";
+	echo "		<option value='user'>".$text['option-contact_type_user']."</option>\n";
+	echo "		<option value='volunteer'>".$text['option-contact_type_volunteer']."</option>\n";
+}
+echo "              </select>";
 if (permission_exists('contact_add')) {
     //echo button::create(['type'=>'button','icon'=>$_SESSION['theme']['button_icon_add'],'id'=>'btn_contact_add','style'=>null,'onclick'=>"loadModal('/app/contacts/contact_edit_modal.php'); modal_open('modal-contact_add','btn_contact_add');"]);
     echo button::create(['type'=>'button','icon'=>$_SESSION['theme']['button_icon_add'],'id'=>'btn_contact_add','style'=>null,'onclick'=>"loadModalContent('contact_add'); modal_open('modal','btn_contact_add');"]);
@@ -65,8 +89,8 @@ echo "              <tr class='list-header'>";
 echo "                  <th class='shrink'>".$text['label-direction']."</th>";
 echo "                  <th class='shrink'>".$text['label-caller_id_number']."</th>";
 echo "                  <th class='shrink'>".$text['label-destination_number']."</th>";
-echo "                  <th class='shrink'>".$text['label-start_stamp']."</th>";
-echo "                  <th class='shrink'>".$text['label-answer_epoch']."</th>";
+echo "                  <th class='center shrink'>".$text['label-date']."</th>";
+echo "                  <th class='center shrink hide-md-dn'>".$text['label-time']."</th>";
 echo "              </tr></tbody>";
 echo "          <tbody id='answered_table'>";
 echo "          </tdbody></table>";
@@ -145,7 +169,7 @@ function showReceived() {
                     extension: '',
                     group: '',
             }},
-            //dataType: "json",
+            dataType: "json",
             success: function (data, textStatus, jqXHR) {
                 //console.log(data);
                 $('#received_table').html(data);
@@ -161,7 +185,7 @@ function showAnswered() {
                     extension: '',
                     group: '',
             }},
-            //dataType: "json",
+            dataType: "json",
             success: function (data, textStatus, jqXHR) {
                 //console.log(data);
                 $('#answered_table').html(data);
@@ -171,21 +195,19 @@ function showAnswered() {
 function showContacts() {
     $.get({
             url: "contacts.php", 
-            data: {                
-                filters: {
-                    name: '',
-                    extension: '',
-                    group: '',
-            }},
+            data: {
+                associated : document.getElementById('associated_contacts').checked,
+                type: document.getElementById('contact_type').value
+            },
             dataType: "json",
             success: function (data, textStatus, jqXHR) {
-                //console.log(data);
-                $('#contacts_table').html(data);
+                //console.log(data['return']);
+                //$('#contact_type').html(data['options']);
+                $('#contacts_table').html(data['table']);
             }});
 }
 
 var transferButton = document.getElementById('btn_phone_transfer');
-
 function showPhone() {
     $.get({
             url: "phone.php", 
@@ -255,6 +277,11 @@ function postData(form, destination) {
             }});
 }
 
+//var contactTypeSelect = document.getElementById('contact_type');
+//contactTypeSelect.onchange = showContacts;
+$('#contact_type').on('change', showContacts);
+$('#associated_contacts').on('change', showContacts);
+//console.log(contactTypeSelect);
 var phoneRefresher = window.setInterval(showPhone, 1000);
 
 showReceived();

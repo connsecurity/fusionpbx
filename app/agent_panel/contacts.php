@@ -23,23 +23,43 @@ if (permission_exists('xml_cdr_view')) {
 $language = new text;
 $text = $language->get();
 
+$contact_type = $_GET['type'];
+$associated_contacts = $_GET['associated'];
+
+
 $sql = "SELECT ";
 $sql .= 	"co.contact_name_given, co.contact_nickname, cp.phone_number ";
 $sql .= "FROM ";
 $sql .= 	"v_contacts as co ";
-$sql .= "INNER JOIN ";
+if ($associated_contacts == 'true') {
+    $sql .= "INNER JOIN ";
+    $sql .=     "v_contact_relations as cr ";
+    $sql .= "ON ";
+    $sql .=     "co.contact_uuid = cr.relation_contact_uuid ";
+    $sql .= "AND ";
+    $sql .=     "cr.contact_uuid = :agent_uuid ";
+    $parameters['agent_uuid'] = $_SESSION['user']['contact_uuid'];
+}
+$sql .= "LEFT JOIN ";
 $sql .= 	"v_contact_phones as cp ";
 $sql .= "ON ";
 $sql .= 	"co.contact_uuid = cp.contact_uuid ";
-$sql .= "AND ";
+$sql .= "WHERE ";
 $sql .= 	"co.domain_uuid = :domain_uuid ";
+if ($contact_type != "") {
+    $sql .= "AND ";
+    $sql .=     "co.contact_type = :contact_type ";
+    $parameters['contact_type'] = $contact_type;
+}
+$sql .= "ORDER BY ";
+$sql .=     "co.contact_nickname ";
 
 $parameters['domain_uuid'] = $_SESSION['domain_uuid'];
 $database = new database;
 $contacts = $database->select($sql, $parameters, 'all');
 
+//build contact list table
 $table = "<tbody>";
-
 foreach ($contacts as $contact) {
     $table .= "<tr><td><label>";
     $table .= "<input type='radio' class='agent_panel_contact' name='contact' value='".$contact['phone_number']."'>";
@@ -48,9 +68,11 @@ foreach ($contacts as $contact) {
     $table .= "<br>Telefone: ".$contact['phone_number'];
     $table .= "</div></label></tr>";
 }
-
 $table .= "</tbody>";
 
-echo json_encode($table, JSON_UNESCAPED_UNICODE);
+$json = [];
+$json['table'] = $table;
+//$json['return'] = $contacts;
+echo json_encode($json, JSON_UNESCAPED_UNICODE);
 
 ?>

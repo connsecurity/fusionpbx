@@ -195,6 +195,8 @@ if (!class_exists('xml_cdr')) {
 			$this->fields[] = "hangup_cause";
 			$this->fields[] = "hangup_cause_q850";
 			$this->fields[] = "sip_hangup_disposition";
+			$this->fields[] = "bridge_epoch";
+			$this->fields[] = "progress_epoch";
 			if (is_array($_SESSION['cdr']['field'])) {
 				foreach ($_SESSION['cdr']['field'] as $field) {
 					$field_name = end($field);
@@ -460,6 +462,9 @@ if (!class_exists('xml_cdr')) {
 						$this->array[$key]['mduration'] = urldecode($xml->variables->mduration);
 						$this->array[$key]['billsec'] = urldecode($xml->variables->billsec);
 						$this->array[$key]['billmsec'] = urldecode($xml->variables->billmsec);
+
+						$this->array[$key]['bridge_epoch'] = urldecode($xml->variables->bridge_epoch);
+						$this->array[$key]['progress_epoch'] = urldecode($xml->variables->progress_epoch);
 
 					//codecs
 						$this->array[$key]['read_codec'] = urldecode($xml->variables->read_codec);

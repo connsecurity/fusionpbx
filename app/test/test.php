@@ -78,6 +78,9 @@ unset($sql, $parameters, $result);
 echo "<br><br>_SESSION['user']['extension']<br>";
 var_dump($_SESSION['user']['extension']);
 
+echo "<br><br>";
+var_dump($_SESSION);
+
 
 
 // if (isset($switch_command)) {

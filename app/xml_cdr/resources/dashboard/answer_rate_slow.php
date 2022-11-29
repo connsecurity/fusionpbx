@@ -79,22 +79,22 @@ set_include_path(parse_ini_file($conf[0])['document.root']);
 //select the averages
     $sql = "
             select 
-                (count(case when answer_epoch > 0 and start_epoch >= :start_today then 1 end) * 100.0
+                (count(case when (json->'variables'->>'bridge_epoch')::numeric > 0 and start_epoch >= :start_today then 1 end) * 100.0
                 /nullif(count(case when start_epoch >= :start_today_2 then 1 end), 0)) as today,
 
-                (count(case when answer_epoch > 0 and start_epoch >= :start_yesterday and start_epoch <= :end_yesterday then 1 end) * 100.0
+                (count(case when (json->'variables'->>'bridge_epoch')::numeric > 0 and start_epoch >= :start_yesterday and start_epoch <= :end_yesterday then 1 end) * 100.0
                 /nullif(count(case when start_epoch >= :start_yesterday_2 and start_epoch <= :end_yesterday_2 then 1 end), 0)) as yesterday,
 
-                (count(case when answer_epoch > 0 and start_epoch >= :start_this_week then 1 end) * 100.0
+                (count(case when (json->'variables'->>'bridge_epoch')::numeric > 0 and start_epoch >= :start_this_week then 1 end) * 100.0
                 /nullif(count(case when start_epoch >= :start_this_week_2 then 1 end), 0)) as this_week,
 
-                (count(case when answer_epoch > 0 and start_epoch >= :start_last_week and start_epoch <= :end_last_week then 1 end) * 100.0
+                (count(case when (json->'variables'->>'bridge_epoch')::numeric > 0 and start_epoch >= :start_last_week and start_epoch <= :end_last_week then 1 end) * 100.0
                 /nullif(count(case when start_epoch >= :start_last_week_2 and start_epoch <= :end_last_week_2 then 1 end), 0)) as last_week,
 
-                (count(case when answer_epoch > 0 and start_epoch >= :start_this_month then 1 end) * 100.0
+                (count(case when (json->'variables'->>'bridge_epoch')::numeric > 0 and start_epoch >= :start_this_month then 1 end) * 100.0
                 /nullif(count(case when start_epoch >= :start_this_month_2 then 1 end), 0)) as this_month,
 
-                (count(case when answer_epoch > 0 and start_epoch >= :start_last_month and start_epoch <= :end_last_month then 1 end) * 100.0
+                (count(case when (json->'variables'->>'bridge_epoch')::numeric > 0 and start_epoch >= :start_last_month and start_epoch <= :end_last_month then 1 end) * 100.0
                 /nullif(count(case when start_epoch >= :start_last_month_2 and start_epoch <= :end_last_month_2 then 1 end), 0)) as last_month
             from
                 v_xml_cdr
@@ -113,7 +113,11 @@ set_include_path(parse_ini_file($conf[0])['document.root']);
             }
             $sql .= "
             and
-                caller_id_number ~ '.{1}'
+                direction = 'inbound'
+            and
+                last_app <> 'ivr'
+            and
+                caller_id_number ~ '.{6}'
             and
                 start_epoch >= :start_select";            
 

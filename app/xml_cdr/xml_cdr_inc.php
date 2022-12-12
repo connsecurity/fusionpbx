@@ -273,6 +273,7 @@
 		}
 	}
 	$sql .= "c.accountcode, \n";
+	$sql .= "c.answer_epoch, \n";
 	$sql .= "c.answer_stamp, \n";
 	$sql .= "c.sip_hangup_disposition, \n";
 	if (permission_exists("xml_cdr_pdd")) {

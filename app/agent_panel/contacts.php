@@ -59,14 +59,28 @@ $database = new database;
 $contacts = $database->select($sql, $parameters, 'all');
 
 //build contact list table
+// $table = "<tbody>";
+// foreach ($contacts as $contact) {
+//     $table .= "<tr><td><label>";
+//     $table .= "<input type='radio' class='agent_panel_contact' name='contact' value='".$contact['phone_number']."'>";
+//     $table .= "<div id='".$contact['contact_nickname']."'>";
+//     $table .= "Apelido: ".$contact['contact_nickname'];
+//     $table .= "<br>Telefone: ".$contact['phone_number'];
+//     $table .= "</div></label></tr>";
+// }
+// $table .= "</tbody>";
+
 $table = "<tbody>";
+$x = 0;
 foreach ($contacts as $contact) {
     $table .= "<tr><td><label>";
-    $table .= "<input type='radio' class='agent_panel_contact' name='contact' value='".$contact['phone_number']."'>";
+    $table .= "<input type='checkbox' class='agent_panel_contact' name='contact_".$x."' value='".$contact['phone_number']."'>";
     $table .= "<div id='".$contact['contact_nickname']."'>";
+    $table .= "<div id='is_associated'></div>";
     $table .= "Apelido: ".$contact['contact_nickname'];
     $table .= "<br>Telefone: ".$contact['phone_number'];
     $table .= "</div></label></tr>";
+    $x++;
 }
 $table .= "</tbody>";
 

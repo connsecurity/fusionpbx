@@ -3055,6 +3055,11 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 .agent-panel > #contacts > #contact_action_bar {
 	display: flex;
     justify-content: space-between;
+	align-items: center;
+}
+
+.agent-panel > #contacts > #contact_action_bar > .actions > label {
+	margin-bottom: 0px;
 }
 
 .agent-panel > #phone {
@@ -3073,6 +3078,27 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 }
 
 .agent-panel > #phone > #phone_cmd {
+}
+
+.agent-panel #associated_contacts {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.agent-panel #associated_contacts + div:before {
+	content: "\f005";
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+	font-size: 23px;
+	color: white;
+	-webkit-text-stroke: 1px gray;	
+}
+
+.agent-panel #associated_contacts:checked + div:before {
+	color: yellow;
+	-webkit-text-stroke: 1px orange;	
 }
 
 .agent-panel > #contacts > table {
@@ -3104,23 +3130,45 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 	background_color: black;
 }
 
-[type=radio].agent_panel_contact {
+.agent_panel_contact {
 	position: absolute;
 	opacity: 0;
 	width: 0;
 	height: 0;
 }
 
-[type=radio].agent_panel_contact + div {
+.agent_panel_contact + div {
 	cursor: pointer;
 	padding: 1px;
 	background-clip: padding-box;
+	display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
 
-[type=radio].agent_panel_contact:checked + div {
+.agent_panel_contact:checked + div {
 	color: white;
 	border-color: red;
 	background-color: blue;
+}
+
+.is_associated::before {
+	content: "\f005";
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+	font-size: 23px;
+	color: yellow;
+	-webkit-text-stroke: 1px orange;	
+}
+
+.is_not_associated::before {
+	content: "\f005";
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+	font-size: 23px;
+	color: white;
+	-webkit-text-stroke: 1px gray;	
 }
 
 .modal-window > #modal-content {

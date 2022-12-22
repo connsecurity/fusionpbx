@@ -47,7 +47,10 @@ echo "	<div id='contacts'>";
 echo "      <div id='contact_action_bar'>";
 echo "      	<div class='heading'><b>".$text['title-contacts']."</b></div>";
 echo "	        <div class='actions'>";
-echo "              <input class='formfld' type='checkbox' id='associated_contacts' name='associated_contacts'>";
+echo "              <label>";
+echo "                  <input class='formfld' type='checkbox' id='associated_contacts' name='associated_contacts'>";
+echo "                  <div></div>";
+echo "              </label>";
 echo "              <select class='formfld' id='contact_type' name='contact_type'>";
 if (is_array($_SESSION["contact"]["type"])) {
 	sort($_SESSION["contact"]["type"]);
@@ -130,7 +133,7 @@ require_once "resources/footer.php";
 <script type="text/javascript">
 
 $(document).ajaxComplete(function(event, xhr, settings) {
-    console.log('ajaxComplete');  
+    //console.log('ajaxComplete');  
     //console.log(settings);
 });
 
@@ -144,20 +147,20 @@ $(document).ajaxError(function(event, jqxhr, settings, thrownError) {
 });
 
 $(document).ajaxSend(function(event, request, settings) {
-    console.log('ajaxSend');
+    //console.log('ajaxSend');
 });
 
 $(document).ajaxStart(function() {
-    console.log('ajaxStart'); 
+    //console.log('ajaxStart'); 
     //cleanRecords();   
 });
 
 $(document).ajaxStop(function() {
-    console.log('ajaxStop');
+    //console.log('ajaxStop');
 });
 
 $(document).ajaxSuccess(function(event, request, settings) {
-    console.log('ajaxSuccess');
+    //console.log('ajaxSuccess');
 });
 
 function showReceived() {
@@ -272,11 +275,30 @@ function postData(form, destination) {
             data: $("#" + form).serialize(),
             dataType: "json",
             success: function (data, textStatus, jqXHR) {
-                //console.log("i was here");
                 console.log(data);    
             }});
 }
 
+function toggleAssociate(element) {
+    $.post({
+            url: "toggle_associate.php", 
+            data: {
+                contact_uuid: element.getAttribute('data-uuid')
+            },
+            dataType: "json",
+            success: function (data, textStatus, jqXHR) {
+                if (data['message'] == 'deleted') {
+                    element.className = "is_not_associated";
+                } else if (data['message'] == 'added') {
+                    element.className = "is_associated";
+                }
+            }});
+
+    //element.
+
+}
+
+var selected = [];
 //var contactTypeSelect = document.getElementById('contact_type');
 //contactTypeSelect.onchange = showContacts;
 $('#contact_type').on('change', showContacts);

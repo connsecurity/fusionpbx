@@ -28,24 +28,26 @@ $associated_contacts = $_GET['associated'];
 
 
 $sql = "SELECT ";
-$sql .= 	"co.contact_name_given, co.contact_nickname, cp.phone_number ";
+$sql .= 	"co.contact_name_given, co.contact_nickname, cp.phone_number, co.contact_uuid, ";
+$sql .=     "CASE WHEN cr.contact_uuid = :agent_uuid THEN 1 ELSE 0 END as is_associated ";
 $sql .= "FROM ";
 $sql .= 	"v_contacts as co ";
-if ($associated_contacts == 'true') {
-    $sql .= "INNER JOIN ";
-    $sql .=     "v_contact_relations as cr ";
-    $sql .= "ON ";
-    $sql .=     "co.contact_uuid = cr.relation_contact_uuid ";
-    $sql .= "AND ";
-    $sql .=     "cr.contact_uuid = :agent_uuid ";
-    $parameters['agent_uuid'] = $_SESSION['user']['contact_uuid'];
-}
+$sql .= "LEFT JOIN ";
+$sql .=     "v_contact_relations as cr ";
+$sql .= "ON ";
+$sql .=     "co.contact_uuid = cr.relation_contact_uuid ";
+$sql .= "AND ";
+$sql .=     "cr.contact_uuid = :agent_uuid ";
 $sql .= "LEFT JOIN ";
 $sql .= 	"v_contact_phones as cp ";
 $sql .= "ON ";
 $sql .= 	"co.contact_uuid = cp.contact_uuid ";
 $sql .= "WHERE ";
 $sql .= 	"co.domain_uuid = :domain_uuid ";
+if ($associated_contacts == 'true') {
+    $sql .= "AND ";
+    $sql .=     "cr.contact_uuid = :agent_uuid ";
+}
 if ($contact_type != "") {
     $sql .= "AND ";
     $sql .=     "co.contact_type = :contact_type ";
@@ -54,6 +56,7 @@ if ($contact_type != "") {
 $sql .= "ORDER BY ";
 $sql .=     "co.contact_nickname ";
 
+$parameters['agent_uuid'] = $_SESSION['user']['contact_uuid'];
 $parameters['domain_uuid'] = $_SESSION['domain_uuid'];
 $database = new database;
 $contacts = $database->select($sql, $parameters, 'all');
@@ -70,23 +73,33 @@ $contacts = $database->select($sql, $parameters, 'all');
 // }
 // $table .= "</tbody>";
 
+//create token
+$object = new token;
+$token = $object->create($_SERVER['PHP_SELF']);
+
 $table = "<tbody>";
 $x = 0;
 foreach ($contacts as $contact) {
     $table .= "<tr><td><label>";
     $table .= "<input type='checkbox' class='agent_panel_contact' name='contact_".$x."' value='".$contact['phone_number']."'>";
     $table .= "<div id='".$contact['contact_nickname']."'>";
-    $table .= "<div id='is_associated'></div>";
+    $table .= "<div>";
     $table .= "Apelido: ".$contact['contact_nickname'];
     $table .= "<br>Telefone: ".$contact['phone_number'];
+    $table .= "</div>";
+    $table .= "<div class='is_".($contact['is_associated'] == 1 ? '' : 'not_')."associated' data-uuid='".$contact['contact_uuid']."' onClick=\"toggleAssociate(this);\"></div>";
     $table .= "</div></label></tr>";
     $x++;
 }
 $table .= "</tbody>";
+$table .= "<input type='hidden' name='".$token['name']."' value='".$token['hash']."'>\n";
 
 $json = [];
 $json['table'] = $table;
-//$json['return'] = $contacts;
+
+$json['sql'] = $sql;
+$json['parameters'] = $parameters;
+$json['result'] = $contacts;
 echo json_encode($json, JSON_UNESCAPED_UNICODE);
 
 ?>

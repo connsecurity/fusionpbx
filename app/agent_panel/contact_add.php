@@ -104,10 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $p->delete('contact_address_add', 'temp');
         $p->delete('contact_user_add', 'temp');
         $p->delete('contact_group_add', 'temp');
-    }
-
-    //save association
-    
+    }    
 
     echo json_encode($message);
     exit;

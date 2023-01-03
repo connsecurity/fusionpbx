@@ -32,6 +32,18 @@ else {
 }
 $parameters['time_zone'] = $time_zone;
 
+//set GET variables
+$call_status = $_GET['call_status'];
+$unformatted_extensions = $_GET['extensions'];
+foreach ($unformatted_extensions as $unformatted_extension) {
+    $tmp = preg_replace('/\D/', '', $unformatted_extension);
+    preg_match('/(?:0?[1-9]{2})?(9?[1-9][\d]{7})$/', $tmp, $matches);
+    if($matches[1] != '') {
+        $formatted_extensions[] = '%'.$matches[1].'%';
+    }
+}
+
+
 //get cdr
 $sql = "SELECT ";
 //$sql .=     "caller_id_name, caller_id_number, caller_destination, source_number, destination_number, start_epoch, start_stamp ";
@@ -47,6 +59,27 @@ $sql .= "FROM ";
 $sql .=     "v_xml_cdr ";
 $sql .= "WHERE ";
 $sql .= 	"domain_uuid = :domain_uuid ";
+//if call status
+if ($call_status == 'answered') {
+    $sql .= "AND ";
+    $sql .=     "answer_epoch > 0 ";
+} else if ($call_status == 'missed') {
+    $sql .= "AND ";
+    $sql .=     "missed_call = 'true' ";
+}
+//if extensions
+if (!empty($formatted_extensions)) {
+    $x = 0;
+    $sql .= "AND ";
+    $sql .=     "(";
+    foreach ($formatted_extensions as $formatted_extension) {
+        $sql_where_array[$x] =     "caller_id_number LIKE :caller_id_number_".$x;
+        $parameters['caller_id_number_'.$x] = $formatted_extension;
+    }
+    $sql .= implode(' OR ', $sql_where_array);	
+    $sql .=     ")";
+    unset($sql_where_array);
+}
 $sql .= "AND ";
 $x = 0;
 foreach ($_SESSION['agent']['extension'] as $extension) {
@@ -104,12 +137,14 @@ foreach ($call_records as $row) {
 
     //caller_id_number
     $table .= "	<td class='middle no-link no-wrap'>";
+    $table .= " <a href=\"javascript:void(0)\" onclick=\"call('".$_SESSION['agent']['extension'][0]['extension']."', '".$row['caller_id_number']."', 'call');\">";
     if (is_numeric($row['caller_id_number'])) {
         $table .= "		".escape(format_phone(substr($row['caller_id_number'], 0, 20))).' ';
     }
     else {
         $table .= "		".escape(substr($row['caller_id_number'], 0, 20)).' ';
     }
+    $table .= " </a>";
     $table .= "	</td>\n";
 
     //destination_number
@@ -134,8 +169,10 @@ foreach ($call_records as $row) {
     // }
     $table .= "</tr>\n";
 }
-
-echo json_encode($table, JSON_UNESCAPED_UNICODE);
+$json = [];
+$json['table'] = $table;
+//$json['status'] = $sql;
+echo json_encode($json, JSON_UNESCAPED_UNICODE);
 
 
 ?>

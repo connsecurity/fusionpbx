@@ -80,15 +80,16 @@ $token = $object->create($_SERVER['PHP_SELF']);
 $table = "<tbody>";
 $x = 0;
 foreach ($contacts as $contact) {
-    $table .= "<tr><td><label>";
-    $table .= "<input type='checkbox' class='agent_panel_contact' name='contact_".$x."' value='".$contact['phone_number']."'>";
-    $table .= "<div id='".$contact['contact_nickname']."'>";
+    $table .= "<tr id='contact_".$x."'>";
+    $table .= "<td><div class='is_".($contact['is_associated'] == 1 ? '' : 'not_')."associated' data-uuid='".$contact['contact_uuid']."' onClick=\"toggleAssociate(this);\"></div></td>";
+    $table .= "<td><label>";
+    $table .= "<input type='checkbox' class='agent_panel_contact' name='#contact_".$x."' value='".$contact['phone_number']."'>";
     $table .= "<div>";
     $table .= "Apelido: ".$contact['contact_nickname'];
     $table .= "<br>Telefone: ".$contact['phone_number'];
-    $table .= "</div>";
-    $table .= "<div class='is_".($contact['is_associated'] == 1 ? '' : 'not_')."associated' data-uuid='".$contact['contact_uuid']."' onClick=\"toggleAssociate(this);\"></div>";
-    $table .= "</div></label></tr>";
+    $table .= "</div></label></td>";
+    $table .= "<td><div class='contact_call' onclick=\"call('".$_SESSION['agent']['extension'][0]['extension']."', '".$contact['phone_number']."', 'call');\"></div></td>";
+    $table .= "</tr>";
     $x++;
 }
 $table .= "</tbody>";

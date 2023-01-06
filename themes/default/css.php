@@ -3008,35 +3008,30 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 /* AGENT PANEL ************************************************************************/
 
 .agent-panel {
-	height: 88vh;
+	height: 83vh;
 }
 
 .agent-panel > div {
-	border: solid;
-	border-radius: 4px;
-	border-color: #AFC8FF;
-	border-width: 3px;
-	margin-top: 4px;
+	box-shadow: 1px 1px 1px rgb(0 0 0 / 25%), 
+				2px 2px 2px rgb(0 0 0 / 20%), 
+				4px 4px 4px rgb(0 0 0 / 15%),
+				0px 0px 20px rgb(0 0 0 / 10%);
+	margin: 1%;
 }
 
-.agent-panel > #received {
+.ap_action_bar {
+	display: flex;
+    justify-content: space-between;
+	align-items: center;
+	height: 35px;
+	margin-left: 7px;
+} 
+
+.agent-panel > .cdr {
 	float: left;
-	width: 69%;	
-	height: 50%;
+	width: 68%;	
+	height: 49%;
 	
-	/* word-wrap: break-word; */ 
-	/* white-space: pre-wrap; */
-	/* word-break: break-word; */
-
-	overflow-y: scroll;
-
-}
-
-.agent-panel > #answered {
-	float: left;
-	width: 69%;
-	height: 50%;
-
 	/* word-wrap: break-word; */ 
 	/* white-space: pre-wrap; */
 	/* word-break: break-word; */
@@ -3047,31 +3042,25 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 
 .agent-panel > #contacts {
 	float: right;
-	width: 29%;
-	height: 80%;
+	width: 28%;
+	height: 75%;
 	overflow-y: scroll;
 }
 
-.agent-panel > #contacts > #contact_action_bar {
-	display: flex;
-    justify-content: space-between;
-	align-items: center;
-}
-
-.agent-panel > #contacts > #contact_action_bar > .actions > label {
+.agent-panel > #contacts .ap_action_bar > .actions > label {
 	margin-bottom: 0px;
 }
 
 .agent-panel > #phone {
 	float: right;
-	width: 29%;
-	height: 20%;
+	width: 28%;
+	height: 23%;
 	display: flex;
     justify-content: space-between;
 	flex-direction: column;
 }
 
-.agent-panel > #phone > #phone_action_bar {
+.agent-panel > #phone > .ap_action_bar {
 }
 
 .agent-panel > #phone > #phone_status {
@@ -3110,25 +3099,43 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 }
 .agent-panel > #contacts > table > tbody > tr {
 	position: relative;
-	border-style: solid;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
-	-webkit-box-shadow: 0 0 3px <?php echo $_SESSION['theme']['form_table_field_background_color']['text']; ?>;
-	-moz-box-shadow: 0 0 3px <?php echo $_SESSION['theme']['form_table_field_background_color']['text']; ?>;
-	box-shadow: 0 0 3px <?php echo $_SESSION['theme']['form_table_field_background_color']['text']; ?>;
+	border-style: solid;	
+
+	box-shadow: 1px 1px 1px rgb(0 0 0 / 8%), 2px 2px 2px rgb(0 0 0 / 6%), 4px 4px 4px rgb(0 0 0 / 4%), 0px 0px 20px rgb(0 0 0 / 2%);
+
 	border-width: 1px 3px;
 	border-color: <?php echo $_SESSION['theme']['operator_panel_border_color']['text']; ?>;
 	background-color: <?php echo $_SESSION['theme']['form_table_label_background_color']['text']; ?>;
+}
+
+.agent-panel > #contacts > table > tbody > .selectedContact > td {
+	background-color: #edeff2;
+	opacity: 1;	
+}
+
+.agent-panel > #contacts > table > tbody > tr:hover > td {
+	background-color:steelblue;
+	color: white;
+	opacity: 1;
+	transition: 0.3s;
+}
+
+
+.agent-panel > #contacts > table > tbody > tr > td {
+	
+	height: 100%;
+	text-align: center;
+	vertical-align: middle;
 	opacity: 0.5;
 }
 
 .agent-panel > #contacts > table > tbody > tr > td > label {
 	width: 100%;
-	height: 100%;
-	margin: 0px;
-	background_color: black;
+	margin-bottom: unset;
+	text-align: left;
+
 }
+
 
 .agent_panel_contact {
 	position: absolute;
@@ -3147,10 +3154,13 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
     align-items: center;
 }
 
-.agent_panel_contact:checked + div {
-	color: white;
-	border-color: red;
-	background-color: blue;
+.contact_call::before {
+	cursor: pointer;
+	content: "\f095";
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+	font-size: 23px;
+	color: blue;
 }
 
 .is_associated::before {
@@ -3159,7 +3169,9 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
     font-weight: 900;
 	font-size: 23px;
 	color: yellow;
-	-webkit-text-stroke: 1px orange;	
+	-webkit-text-stroke: 1px orange;
+	-moz-text-stroke: 1px orange;
+	text-stroke: 1px orange;	
 }
 
 .is_not_associated::before {
@@ -3169,6 +3181,8 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 	font-size: 23px;
 	color: white;
 	-webkit-text-stroke: 1px gray;	
+	-moz-text-stroke: 1px gray;
+	text-stroke: 1px gray;
 }
 
 .modal-window > #modal-content {

@@ -29,7 +29,10 @@ require_once "resources/header.php";
 //show content
 echo "<div class='agent-panel'>";
 //received
-echo "	<div id='received'>";
+echo "	<div class='cdr'>";
+echo "      <div class='ap_action_bar'>";
+echo "          <div class='heading'><b>".$text['title-received']."</b></div>";
+echo "      </div>";
 echo "      <table class='list'>";
 echo "          <tbody>";
 echo "              <tr class='list-header'>";
@@ -39,12 +42,12 @@ echo "                  <th class='shrink'>".$text['label-destination_number']."
 echo "                  <th class='center shrink'>".$text['label-date']."</th>";
 echo "                  <th class='center shrink hide-md-dn'>".$text['label-time']."</th>";
 echo "              </tr></tbody>";
-echo "          <tbody id='received_table'>";
+echo "          <tbody id='cdr_one_table'>";
 echo "          </tdbody></table>";
 echo "  </div>";
 //contacts
 echo "	<div id='contacts'>";
-echo "      <div id='contact_action_bar'>";
+echo "      <div class='ap_action_bar'>";
 echo "      	<div class='heading'><b>".$text['title-contacts']."</b></div>";
 echo "	        <div class='actions'>";
 echo "              <label>";
@@ -60,8 +63,8 @@ if (is_array($_SESSION["contact"]["type"])) {
 	}
 }
 else {
-	echo "		<option value=''>All</option>\n";
-	echo "		<option value='customer' selected='selected'>".$text['option-contact_type_customer']."</option>\n";
+	echo "		<option value='' selected='selected'>".$text['option-contact_type_all']."</option>\n";
+	echo "		<option value='customer'>".$text['option-contact_type_customer']."</option>\n";
 	echo "		<option value='contractor'>".$text['option-contact_type_contractor']."</option>\n";
 	echo "		<option value='friend'>".$text['option-contact_type_friend']."</option>\n";
 	echo "		<option value='lead'>".$text['option-contact_type_lead']."</option>\n";
@@ -84,8 +87,11 @@ echo "      <table id='contacts_table'>";
 echo "      </table>";
 echo "  </div>";
 
-//answered
-echo "	<div id='answered'>";
+//missed
+echo "	<div class='cdr'>";
+echo "      <div class='ap_action_bar'>";
+echo "          <div class='heading'><b>".$text['title-missed']."</b></div>";
+echo "      </div>";
 echo "      <table class='list'>";
 echo "          <tbody>";
 echo "              <tr class='list-header'>";
@@ -95,14 +101,15 @@ echo "                  <th class='shrink'>".$text['label-destination_number']."
 echo "                  <th class='center shrink'>".$text['label-date']."</th>";
 echo "                  <th class='center shrink hide-md-dn'>".$text['label-time']."</th>";
 echo "              </tr></tbody>";
-echo "          <tbody id='answered_table'>";
+echo "          <tbody id='cdr_two_table'>";
 echo "          </tdbody></table>";
 echo "  </div>";
 
 //phone
 echo "	<div id='phone'>";
-echo "      <div id='phone_action_bar'>";
-echo "          <div class='heading'><b>".$text['title-phone']."</b></div>";
+echo "      <div class='ap_action_bar'>";
+echo "          <div><b>".$text['title-phone']." - ".$_SESSION['agent']['extension'][0]['extension']."</b></div>";
+echo "          <div id='register_status'></div>";
 echo "      </div>";
 echo "      <div id='phone_status'></div>";
 echo "      <div id='phone_cmd'>";
@@ -163,35 +170,17 @@ $(document).ajaxSuccess(function(event, request, settings) {
     //console.log('ajaxSuccess');
 });
 
-function showReceived() {
+function showCdr(status, dom) {
 	$.get({
-            url: "received.php", 
-            data: {                
-                filters: {
-                    name: '',
-                    extension: '',
-                    group: '',
-            }},
+            url: "cdr.php", 
+            data: {
+                    call_status: status,
+                    extensions: selected,
+                },
             dataType: "json",
             success: function (data, textStatus, jqXHR) {
-                //console.log(data);
-                $('#received_table').html(data);
-            }});
-}
-
-function showAnswered() {
-	$.get({
-            url: "answered.php", 
-            data: {                
-                filters: {
-                    name: '',
-                    extension: '',
-                    group: '',
-            }},
-            dataType: "json",
-            success: function (data, textStatus, jqXHR) {
-                //console.log(data);
-                $('#answered_table').html(data);
+                //console.log(data['status']);
+                $(dom).html(data['table']);
             }});
 }
 
@@ -225,6 +214,7 @@ function showPhone() {
                 //console.log("i was here");
                 //console.log(data['html']);
                 $('#phone_status').html(data['html']);
+                $('#register_status').html(data['registered']);
                 //console.log(data['channel']);
                 //console.log(data['channel_dump']);
 
@@ -293,9 +283,6 @@ function toggleAssociate(element) {
                     element.className = "is_associated";
                 }
             }});
-
-    //element.
-
 }
 
 var selected = [];
@@ -303,11 +290,24 @@ var selected = [];
 //contactTypeSelect.onchange = showContacts;
 $('#contact_type').on('change', showContacts);
 $('#associated_contacts').on('change', showContacts);
+$('#contacts_table').on('change', function() {
+    selected = [];
+    $('.agent_panel_contact:checked').each(function() {
+        selected.push($(this).val());
+        $($(this).attr('name')).addClass('selectedContact');
+    });
+    $('.agent_panel_contact:not(:checked)').each(function() {
+        $($(this).attr('name')).removeClass('selectedContact');
+    });
+    console.log(selected);
+    showCdr('all', '#cdr_one_table');
+    showCdr('missed', '#cdr_two_table');
+});
 //console.log(contactTypeSelect);
 var phoneRefresher = window.setInterval(showPhone, 1000);
 
-showReceived();
-showAnswered();
+showCdr('all', '#cdr_one_table');
+showCdr('missed', '#cdr_two_table');
 showContacts();
 showPhone();
 

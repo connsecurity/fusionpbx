@@ -55,7 +55,7 @@ $channel_dump = json_decode(event_socket_request($fp, 'api uuid_dump ' .$channel
 
 //show extension status
 $json = [];
-$transferable = false;
+$in_call = false;
 $html = "";
 $method = $_SERVER['REQUEST_METHOD'];
 switch ($method) {    
@@ -67,13 +67,22 @@ switch ($method) {
 
         $extension = preg_replace($num_pattern,'',$_POST['extension']);
 		$destination = preg_replace($num_pattern,'',$_POST['destination']);
+        $direction = (user_exists($destination) ? 'local' : 'outbound');
         $operation = $_POST['operation'];
 
         if ($found && ($operation == 'transfer' || $operation == 'auto')) {
             $uuid = preg_replace($uuid_pattern,'',$channel_uuid);
             $api_cmd = 'uuid_transfer ' . $uuid . ' -bleg ' . $destination . ' XML ' . trim($_SESSION['user_context']);
+        } elseif ($found && $operation == 'hangup'){
+            $uuid = preg_replace($uuid_pattern,'',$channel_uuid);
+            $api_cmd = 'uuid_kill ' . $uuid;
         } elseif ($operation == 'call' || $operation == 'auto') {
-            $api_cmd = 'bgapi originate {origination_caller_id_number=' . $extension . ',sip_h_Call-Info=_undef_}user/' . $extension . '@' . $_SESSION['domain_name'] . ' ' . $destination . ' XML ' . trim($_SESSION['user_context']);
+            $api_cmd = 'bgapi originate {origination_caller_id_number='.$extension;
+            $api_cmd .= ',hangup_after_bridge=true';
+            $api_cmd .= ',call_direction='.$direction;
+            $api_cmd .= ',sip_to_user='.$destination;
+            $api_cmd .= ',sip_h_Call-Info=_undef_}';
+            $api_cmd .= 'user/'.$extension.'@'.$_SESSION['domain_name'].' '.$destination.' XML '.trim($_SESSION['user_context']);
         }
         $fp = event_socket_create($_SESSION['event_socket_ip_address'], $_SESSION['event_socket_port'], $_SESSION['event_socket_password']);
         $switch_result = event_socket_request($fp, 'api '.$api_cmd);
@@ -82,22 +91,21 @@ switch ($method) {
         $json['api_cmd'] = $api_cmd;
 
     case 'GET':  
-
         //check registered status
         //$fp = event_socket_create($_SESSION['event_socket_ip_address'], $_SESSION['event_socket_port'], $_SESSION['event_socket_password']);
         $registered = event_socket_request($fp, 'api sofia_contact '.$_SESSION['agent']['extension'][0]['extension'].'@'.$_SESSION['domain_name']);
-        $html .= (preg_match("/^error/", $registered) ? $text['status-not_registered'] : $text['status-registered']) . "<br>";       
+        $json['registered'] = (preg_match("/^error/", $registered) ? $text['status-not_registered'] : $text['status-registered']);       
 
         if ($found) {
             $callstate = $channel['callstate'];
 
-            if ($callstate == 'RINGING' || $callstate == 'EARLY') {
+            if ($callstate == 'RINGING' || $callstate == 'EARLY' || $callstate == 'RING_WAIT') {
                 $start_epoch = $channel['created_epoch'];
                 $status = $text['status-ringing'];
             } elseif ($callstate == 'ACTIVE') {
                 $start_epoch = substr($channel_dump['Caller-Channel-Answered-Time'], 0, -6);
                 $status = $text['status-active'];
-                $transferable = true;
+                $in_call = true;
             } else {
                 $start_epoch = $channel['created_epoch'];
                 $status = "Other";
@@ -107,23 +115,23 @@ switch ($method) {
             $call_length_hour = floor($call_length_seconds/3600);
             $call_length_min = floor($call_length_seconds/60 - ($call_length_hour * 60));
             $call_length_sec = $call_length_seconds - (($call_length_hour * 3600) + ($call_length_min * 60));
+            $call_length_hour = sprintf("%02d", $call_length_hour);
             $call_length_min = sprintf("%02d", $call_length_min);
             $call_length_sec = sprintf("%02d", $call_length_sec);
             $call_length = $call_length_hour.':'.$call_length_min.':'.$call_length_sec;
 
-            $html .= $status;
-            $html .= "<br>";
-            $html .= $call_length;
+            $html .= "<div>".$status."</div>";
+            $html .= "<div>".$call_length."</div>";
+        } else {
+            $html = "<div>".$text['status-available']."</div>";
+            $html .= "<div>--:--:--</div>";
         }
-       
         break;
 }
 $json['html'] = $html;
-$json['transferable'] = $transferable;
+$json['in_call'] = $in_call;
 $json['channel'] = $channel;
 $json['channel_dump'] = $channel_dump;
 
-
 echo json_encode($json);
-
 ?>

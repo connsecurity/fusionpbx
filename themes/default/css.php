@@ -3037,7 +3037,10 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 	/* word-break: break-word; */
 
 	overflow-y: scroll;
+}
 
+.td-direction {
+	width: 0px;
 }
 
 .agent-panel > #contacts {
@@ -3060,14 +3063,40 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 	flex-direction: column;
 }
 
-.agent-panel > #phone > .ap_action_bar {
+.agent-panel > #phone > .ap_action_bar > #register_status {
+	margin-right: 7px;
 }
 
 .agent-panel > #phone > #phone_status {
+	align-self: center;
+	width: 90%;
+	height: 100%;
+	margin-top: 1%;
+	margin-bottom: 1%;
+	background-color: rgba(185, 197, 216, 0.3);
+
+	font-family: monospace, monospace;
+	font-size: 14px;
+
+	display: flex;
+	justify-content: space-evenly;
+	flex-direction: column;
+	align-items: center;
+
 }
 
-.agent-panel > #phone > #phone_cmd {
+.agent-panel > #phone > #phone_cmd {	
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
+
+@media (max-width: 1514px) {
+		#phone_cmd > button:not(.btn-link) > span.button-label.hide-md-dn {
+			display: none;
+			}
+	}
 
 .agent-panel #associated_contacts {
 	position: absolute;

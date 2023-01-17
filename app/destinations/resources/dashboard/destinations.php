@@ -93,8 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     //Update new action
     $action_array = explode(":", $action_value, 2);
-    $destination_actions[$action_number]['destination_app'] = $action_array[0];
-    $destination_actions[$action_number]['destination_data'] = $action_array[1];
+    if (isset($action_array[0]) && $action_array[0] != '') {
+        $destination_actions[$action_number]['destination_app'] = $action_array[0];
+        $destination_actions[$action_number]['destination_data'] = $action_array[1];
+    } else {
+        array_splice($destination_actions, $action_number, 1);
+    }
 
     //sanitize the destination conditions
     if (is_array($destination_conditions)) {
@@ -541,7 +545,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         foreach ($destination_actions as $field) {
             $action_app = $field['destination_app'];
             $action_data = $field['destination_data'];
-            if (isset($action_array[0]) && $action_array[0] != '') {
+            if (isset($action_app) && $action_app != '') {
                 if ($destination->valid($action_app . ':' . $action_data)) {
                     //add to the dialplan_details array
                     $dialplan["dialplan_details"][$y]["domain_uuid"] = $domain_uuid;
@@ -760,15 +764,17 @@ foreach ($destinations as $row) {
     //prepare the destination actions
     $destination_actions = json_decode($row['destination_actions'], true);
     
+    echo "<div id='".$row['destination_uuid']."'>";
     if (is_array($destination_actions)) {
-        $y = 0;
-        echo "<div id='".$row['destination_uuid']."'>";
+        $y = 0;        
         foreach($destination_actions as $action) {            
             echo $destination->select('dialplan', 'destination_actions_'.$x.'_'.$y, $action['destination_app'].':'.$action['destination_data']);            
             $y++;
-        }        
-        echo "</div>";
+        }
     } 
+    echo $destination->select('dialplan', "destination_actions_".$x."_".$y, '');
+    echo "</div>";
+
     $x++;   
     echo "  </td>";
     echo "</tr>";

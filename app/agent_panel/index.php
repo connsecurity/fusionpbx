@@ -36,11 +36,11 @@ echo "      </div>";
 echo "      <table class='list'>";
 echo "          <tbody>";
 echo "              <tr class='list-header'>";
-echo "                  <th class='shrink'>".$text['label-direction']."</th>";
-echo "                  <th class='shrink'>".$text['label-caller_id_number']."</th>";
-echo "                  <th class='shrink'>".$text['label-destination_number']."</th>";
-echo "                  <th class='center shrink'>".$text['label-date']."</th>";
-echo "                  <th class='center shrink hide-md-dn'>".$text['label-time']."</th>";
+echo "                  <th></th>";
+echo "                  <th>".$text['label-caller_id_number']."</th>";
+echo "                  <th>".$text['label-destination_number']."</th>";
+echo "                  <th class='center'>".$text['label-date']."</th>";
+echo "                  <th class='center hide-md-dn'>".$text['label-time']."</th>";
 echo "              </tr></tbody>";
 echo "          <tbody id='cdr_one_table'>";
 echo "          </tdbody></table>";
@@ -95,11 +95,11 @@ echo "      </div>";
 echo "      <table class='list'>";
 echo "          <tbody>";
 echo "              <tr class='list-header'>";
-echo "                  <th class='shrink'>".$text['label-direction']."</th>";
-echo "                  <th class='shrink'>".$text['label-caller_id_number']."</th>";
-echo "                  <th class='shrink'>".$text['label-destination_number']."</th>";
-echo "                  <th class='center shrink'>".$text['label-date']."</th>";
-echo "                  <th class='center shrink hide-md-dn'>".$text['label-time']."</th>";
+echo "                  <th></th>";
+echo "                  <th>".$text['label-caller_id_number']."</th>";
+echo "                  <th>".$text['label-destination_number']."</th>";
+echo "                  <th class='center'>".$text['label-date']."</th>";
+echo "                  <th class='center hide-md-dn'>".$text['label-time']."</th>";
 echo "              </tr></tbody>";
 echo "          <tbody id='cdr_two_table'>";
 echo "          </tdbody></table>";
@@ -113,11 +113,12 @@ echo "          <div id='register_status'></div>";
 echo "      </div>";
 echo "      <div id='phone_status'></div>";
 echo "      <div id='phone_cmd'>";
+echo            button::create(['type'=>'button','label'=>$text['label-phone_hangup'],'icon'=>'fas fa-phone-slash','id'=>'btn_phone_hangup','style'=>null,'onclick'=>"call('".$_SESSION['agent']['extension'][0]['extension']."', '', 'hangup');", 'disabled'=>true]);
 echo "          <form id='frm_destination_call' onsubmit=\"call('".$_SESSION['agent']['extension'][0]['extension']."', document.getElementById('destination_call').value, 'auto'); return false;\">";
-echo "              <input type='text' class='formfld' id='destination_call' style='width: 100px; min-width: 100px; max-width: 100px; margin-top: 10px; text-align: center;'>";
+echo "              <input type='text' class='formfld' id='destination_call' style='width: 100px; min-width: 100px; max-width: 100px; text-align: center;'>";
 echo "          </form>";
-echo            button::create(['type'=>'button','icon'=>'fas fa-pray','id'=>'btn_phone_transfer','style'=>null,'onclick'=>"call('".$_SESSION['agent']['extension'][0]['extension']."', document.getElementById('destination_call').value, 'transfer');", 'disabled'=>true]);
-echo            button::create(['type'=>'button','icon'=>'fas fa-praying-hands','id'=>'btn_phone_call','style'=>null,'onclick'=>"call('".$_SESSION['agent']['extension'][0]['extension']."', document.getElementById('destination_call').value, 'call');"]);
+echo            button::create(['type'=>'button','label'=>$text['label-phone_call'],'icon'=>'fas fa-phone','id'=>'btn_phone_call','style'=>null,'onclick'=>"call('".$_SESSION['agent']['extension'][0]['extension']."', document.getElementById('destination_call').value, 'call');"]);
+echo            button::create(['type'=>'button','label'=>$text['label-phone_transfer'],'icon'=>'fas fa-angle-double-right','id'=>'btn_phone_transfer','style'=>null,'onclick'=>"call('".$_SESSION['agent']['extension'][0]['extension']."', document.getElementById('destination_call').value, 'transfer');", 'disabled'=>true]);
 echo "      </div>";
 echo "  </div>";
 
@@ -200,6 +201,7 @@ function showContacts() {
 }
 
 var transferButton = document.getElementById('btn_phone_transfer');
+var hangupButton = document.getElementById('btn_phone_hangup');
 function showPhone() {
     $.get({
             url: "phone.php", 
@@ -212,19 +214,29 @@ function showPhone() {
             dataType: "json",
             success: function (data, textStatus, jqXHR) {
                 //console.log("i was here");
-                //console.log(data['html']);
-                $('#phone_status').html(data['html']);
+                //console.log(data['html']);                
                 $('#register_status').html(data['registered']);
+                var html = data['html'] + updateClock();
+                $('#phone_status').html(html);
                 //console.log(data['channel']);
                 //console.log(data['channel_dump']);
 
-                if (data['transferable'] == true && transferButton.disabled == true) {
-                    button_enable('btn_phone_transfer');
-                } else if (data['transferable'] == false && transferButton.disabled == false) {
-                    button_disable('btn_phone_transfer');
+                if (data['in_call'] == true) {
+                    if (transferButton.disabled == true) {
+                        button_enable('btn_phone_transfer');
+                    }
+                    if (hangupButton.disabled == true) {
+                        button_enable('btn_phone_hangup');
+                    }
+                } else {
+                    if (transferButton.disabled == false) {
+                        button_disable('btn_phone_transfer');
+                    }
+                    if (hangupButton.disabled == false) {
+                        button_disable('btn_phone_hangup');
+                    }
                 }
             }});
-
 }
 
 function call(extension, destination, operation) {
@@ -283,6 +295,26 @@ function toggleAssociate(element) {
                     element.className = "is_associated";
                 }
             }});
+}
+
+function updateClock() {
+    var now = new Date(),
+        months = <?php echo $text['months']; ?>,
+        days = <?php echo $text['days']; ?>,
+        time = "<div style='font-size: 18px; font-weight: bold;'>" 
+                + now.getHours().toLocaleString(undefined, {minimumIntegerDigits: 2}) 
+                + ':' 
+                + now.getMinutes().toLocaleString(undefined, {minimumIntegerDigits: 2}) 
+                + '</div>';
+
+        date = [days[now.getDay()] + ',',
+                now.getDate(), 
+                months[now.getMonth()]].join(' ');
+
+        date = '<div>' + date + '</div>';
+
+    // set the content of the element with the ID time to the formatted string
+    return time + date;
 }
 
 var selected = [];

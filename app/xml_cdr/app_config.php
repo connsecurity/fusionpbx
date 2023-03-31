@@ -523,6 +523,12 @@
 		$apps[$x]['db'][$y]['fields'][$z]['type']['mysql'] = "timestamp";
 		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "";
 		$z++;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "progress_epoch";
+		$apps[$x]['db'][$y]['fields'][$z]['type']['pgsql'] = "numeric";
+		$apps[$x]['db'][$y]['fields'][$z]['type']['sqlite'] = "numeric";
+		$apps[$x]['db'][$y]['fields'][$z]['type']['mysql'] = "bigint";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "Progress Epoch";
+		$z++;
 		$apps[$x]['db'][$y]['fields'][$z]['name'] = "answer_stamp";
 		$apps[$x]['db'][$y]['fields'][$z]['type']['pgsql'] = "timestamptz";
 		$apps[$x]['db'][$y]['fields'][$z]['type']['sqlite'] = "date";

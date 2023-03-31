@@ -451,7 +451,7 @@ if (!class_exists('xml_cdr')) {
 						$start_epoch = urldecode($xml->variables->start_epoch);
 						$this->array[$key]['start_epoch'] = $start_epoch;
 						$this->array[$key]['start_stamp'] = is_numeric($start_epoch) ? date('c', $start_epoch) : null;
-						$answer_epoch = urldecode($xml->variables->answer_epoch);
+						$answer_epoch = (urldecode($xml->variables->call_direction) == 'outbound' ? urldecode($xml->variables->answer_epoch) : urldecode($xml->variables->answer_time));
 						$this->array[$key]['progress_epoch'] = urldecode($xml->variables->progress_epoch);
 						$this->array[$key]['answer_epoch'] = $answer_epoch;
 						$this->array[$key]['answer_stamp'] = is_numeric($answer_epoch) ? date('c', $answer_epoch) : null;

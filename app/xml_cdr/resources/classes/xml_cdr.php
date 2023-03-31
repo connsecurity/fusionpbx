@@ -311,13 +311,13 @@ if (!class_exists('xml_cdr')) {
 						unset($i);
 
 					//get the caller ID from variables
-						if (!isset($caller_id_number) && isset($xml->variables->caller_id_name)) {
+						if (isset($xml->variables->caller_id_name)) {
 							$caller_id_name = urldecode($xml->variables->caller_id_name);
 						}
 						if (!isset($caller_id_number) && isset($xml->variables->caller_id_number)) {
 							$caller_id_number = urldecode($xml->variables->caller_id_number);
 						}
-						if (!isset($caller_id_number) && isset($xml->variables->sip_from_user)) {
+						if (isset($xml->variables->sip_from_user)) {
 							$caller_id_number = urldecode($xml->variables->sip_from_user);
 						}
 

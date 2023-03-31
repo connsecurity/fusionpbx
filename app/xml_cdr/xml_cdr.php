@@ -676,14 +676,14 @@
 						$content .= "<td class='middle'>\n";
 						if ($theme_cdr_images_exist) {
 							if ($row['direction'] == 'inbound' || $row['direction'] == 'local') {
-								if ($row['answer_stamp'] != '' && $row['bridge_uuid'] != '') { $call_result = 'answered'; }
-								else if ($row['answer_stamp'] != '' && $row['bridge_uuid'] == '') { $call_result = 'voicemail'; }
-								else if ($row['answer_stamp'] == '' && $row['bridge_uuid'] == '' && $row['sip_hangup_disposition'] != 'send_refuse') { $call_result = 'cancelled'; }
+								if ($row['answer_epoch'] > 0 && $row['bridge_uuid'] != '') { $call_result = 'answered'; }
+								else if ($row['answer_epoch'] > 0 && $row['bridge_uuid'] == '') { $call_result = 'voicemail'; }
+								else if ($row['answer_epoch'] == 0 && $row['bridge_uuid'] == '' && $row['sip_hangup_disposition'] != 'send_refuse') { $call_result = 'cancelled'; }
 								else { $call_result = 'failed'; }
 							}
 							else if ($row['direction'] == 'outbound') {
-								if ($row['answer_stamp'] != '' && $row['bridge_uuid'] != '') { $call_result = 'answered'; }
-								else if ($row['answer_stamp'] == '' && $row['bridge_uuid'] != '') { $call_result = 'cancelled'; }
+								if ($row['answer_epoch'] > 0 && $row['bridge_uuid'] != '') { $call_result = 'answered'; }
+								else if ($row['answer_epoch'] == 0 && $row['bridge_uuid'] != '') { $call_result = 'cancelled'; }
 								else { $call_result = 'failed'; }
 							}
 							if (strlen($row['direction']) > 0) {

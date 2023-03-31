@@ -399,6 +399,10 @@ if (!class_exists('xml_cdr')) {
 							//marked as missed
 							$missed_call = $xml->variables->missed_call;
 						}
+						elseif (isset($xml->variables->bridge_uuid)) {
+							//answered
+							$missed_call = 'false';
+						}
 						elseif (isset($xml->variables->fax_success)) {
 							//fax server
 							$missed_call = 'false';
@@ -418,10 +422,6 @@ if (!class_exists('xml_cdr')) {
 						elseif (isset($xml->variables->voicemail_message) && $xml->variables->voicemail_message == true) {
 							//voicemail
 							$missed_call = 'true';
-						}
-						elseif (isset($xml->variables->billsec) && $xml->variables->billsec > 0) {
-							//answered call
-							$missed_call = 'false';
 						}
 						else {
 							//missed call

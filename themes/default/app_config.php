@@ -2502,5 +2502,12 @@
 		$apps[$x]['default_settings'][$y]['default_setting_value'] = "#5f5f5f";
 		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "true";
 		$apps[$x]['default_settings'][$y]['default_setting_description'] = "";
-
+		$y++;
+		$apps[$x]['default_settings'][$y]['default_setting_uuid'] = "b7718490-8b2d-4327-b8d0-5ef8ad252ca0";
+		$apps[$x]['default_settings'][$y]['default_setting_category'] = "theme";
+		$apps[$x]['default_settings'][$y]['default_setting_subcategory'] = "title";
+		$apps[$x]['default_settings'][$y]['default_setting_name'] = "text";
+		$apps[$x]['default_settings'][$y]['default_setting_value'] = "ConnSecurity";
+		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "true";
+		$apps[$x]['default_settings'][$y]['default_setting_description'] = "";
 ?>

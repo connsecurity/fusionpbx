@@ -2145,6 +2145,29 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 		border: 1px solid #5d5f5a;
 		}
 
+
+/* CUSTOMER CHAT ******************************************************************/
+
+	#customer_chat {
+		display: flex;
+	}
+
+	#conversation_list {
+
+	}
+
+	.conversation_item {
+
+	}
+
+	.conversation_item > .name {
+
+	}
+
+	.conversation_item > .last_message {
+		
+	}
+
 /* DASHBOARD **********************************************************************/
 
 	/* login message */

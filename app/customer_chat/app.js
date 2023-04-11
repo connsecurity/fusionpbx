@@ -7,7 +7,7 @@ $(function () {
 	// chatwoot.user_id = user_id;
 
     // for better performance - to avoid searching in DOM
-    const $input = $('#message');
+    const $message_input = $('#message_input');
     const $conversation_list = $('#conversation_list');
     const $conversation_header = $('#conversation_header');
     const $conversation_messages = $('#conversation_messages');
@@ -72,7 +72,7 @@ $(function () {
 	/**
      * Send mesage when user presses Enter key
      */
-    $input.keydown(function(e) {
+    $message_input.keydown(function(e) {
         if (e.keyCode === 13) {
             var msg = $(this).val();
             if (!msg) {

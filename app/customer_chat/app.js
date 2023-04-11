@@ -1,4 +1,4 @@
-$(function () {
+(function () {
     // window.chatwoot = {};
     // chatwoot.inbox_identifier = inbox_identifier;
     // chatwoot.chatwoot_api_url = "https://chat.connsecurity.com.br/api/v1/";
@@ -7,10 +7,10 @@ $(function () {
 	// chatwoot.user_id = user_id;
 
     // for better performance - to avoid searching in DOM
-    const $message_input = $('#message_input');
-    const $conversation_list = $('#conversation_list');
-    const $conversation_header = $('#conversation_header');
-    const $conversation_messages = $('#conversation_messages');
+    const message_input = document.getElementById('message_input');
+    const conversation_list = document.getElementById('conversation_list');
+    const conversation_header = document.getElementById('conversation_header');
+    const conversation_messages = document.getElementById('conversation_messages');
 
     // if user is running mozilla then use it's built-in WebSocket
     window.WebSocket = window.WebSocket || window.MozWebSocket;
@@ -72,19 +72,7 @@ $(function () {
 	/**
      * Send mesage when user presses Enter key
      */
-    $message_input.keydown(function(e) {
-        if (e.keyCode === 13) {
-            var msg = $(this).val();
-            if (!msg) {
-                return;
-            }
-            // send the message to chatwoot
-            //connection.send(msg);
-            sendMessage(msg);
-            addMessage("me", msg)
-            $(this).val('');
-        }
-    });
+    //TODO
 
 	/**
      * Add message to the chat window
@@ -115,14 +103,16 @@ $(function () {
         // Check the conversations array
         const conversations = jsonData.data.payload;
         if (Array.isArray(conversations) && conversations) {
-
+            
             conversations.forEach(conversation => {
-                $conversation_list.append(`
-                                        <div class='conversation_item'>
-                                            <div class='name'>${conversation.meta.sender.name}</div>
-                                            <div class='last_message'>${conversation.last_non_activity_message.content}</div>
-                                        </div>
-                                        `);
+                
+                let conversation_item = createElement("div", "conversation_item");
+                let name = createElement("div", "name", conversation.meta.sender.name);
+                let last_message = createElement("div", "last_message", conversation.last_non_activity_message.content);
+
+                conversation_item.appendChild(name);
+                conversation_item.appendChild(last_message);
+                conversation_list.appendChild(conversation_item);
             });
         } else {
             console.log("Error getting conversations");
@@ -130,7 +120,7 @@ $(function () {
         }
 
         // Load messages of the first conversation
-        $conversation_header.text(conversations[0].meta.sender.name);
+        conversation_header.textContent = conversations[0].meta.sender.name;
         getMessages(conversations[0].id);
     }
 
@@ -153,15 +143,19 @@ $(function () {
         if (Array.isArray(messages) && messages) {
 
             messages.forEach(message => {
-                $conversation_messages.append(`
-                                        <div class='message ${message.message_type ? 'sent' : 'received'}'>
-                                            ${message.content}
-                                        </div>
-                                        `);
+                let message_elem = createElement("div", `message ${message.message_type ? 'sent' : 'received'}`, message.content);
+                conversation_messages.appendChild(message_elem);
             });
         } else {
             console.log("Error getting messages");
             return;
         }
     }
-});
+
+    function createElement(tagName, classes, content) {
+        const elem = document.createElement(tagName);
+        elem.className = classes;
+        elem.textContent = content;
+        return elem;
+    }
+})();

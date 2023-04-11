@@ -22,7 +22,6 @@
 
 ?>
 
-<script language="JavaScript" type="text/javascript" src="<?php echo PROJECT_PATH; ?>/resources/jquery/jquery-ui.min.js"></script>
 <script src="./test_variables.js?v=<?=time();?>"></script>
 <script src="./app.js?v=<?=time();?>"></script>
 

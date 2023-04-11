@@ -7,20 +7,15 @@ $(function () {
 	// chatwoot.user_id = user_id;
 
     // for better performance - to avoid searching in DOM
-    var content = $('#content');
-    var input = $('#input');
-    var status = $('#status');
-    var xhttp = new XMLHttpRequest();
+    const $input = $('#message');
+    const $conversation_list = $('#conversation_list');
 
     // if user is running mozilla then use it's built-in WebSocket
     window.WebSocket = window.WebSocket || window.MozWebSocket;
 
     // if browser doesn't support WebSocket, just show some notification and exit
     if (!window.WebSocket) {
-        content.html($('<p>', { text: 'Sorry, but your browser doesn\'t '
-                                    + 'support WebSockets.'} ));
-        input.hide();
-        $('span').hide();
+        console.log('Sorry, but your browser doesn\'t support WebSockets.');
         return;
     }
 
@@ -39,8 +34,6 @@ $(function () {
         		user_id: chatwoot.user_id
 			})
 		}));
-        input.removeAttr('disabled');
-        status.text('Send Message:');
     };
 
 	connection.onmessage = function(message) {
@@ -77,7 +70,7 @@ $(function () {
 	/**
      * Send mesage when user presses Enter key
      */
-    input.keydown(function(e) {
+    $input.keydown(function(e) {
         if (e.keyCode === 13) {
             var msg = $(this).val();
             if (!msg) {
@@ -85,7 +78,7 @@ $(function () {
             }
             // send the message to chatwoot
             //connection.send(msg);
-            //sendMessage(msg);
+            sendMessage(msg);
             addMessage("me", msg)
             $(this).val('');
         }
@@ -95,16 +88,12 @@ $(function () {
      * Add message to the chat window
      */
 	function addMessage(author, message) {
-        content.append('<p><span>' + author + '</span> @ ' + ':' +  message + '</p>');
-        content.scrollTop(1000000);
+        //TODO
     }
 
     // Send Message to contact
     function sendMessage(msg) {
-        let url = "TODO";
-        xhttp.open("POST", url, false);
-        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        xhttp.send(JSON.stringify({content: msg}));
+        //TODO
     }
 
     async function getConversations() {
@@ -120,5 +109,22 @@ $(function () {
         const jsonData = await response.json();
         console.log("getConversations response:");
         console.log(jsonData);
+        
+        // Check the messages array
+        const conversations = jsonData.data.payload;
+        if (Array.isArray(conversations) && conversations) {
+
+            conversations.forEach(conversation => {
+                $conversation_list.append(`
+                                        <div class='conversation_item'>
+                                            <div class='name'>${conversation.meta.sender.name}</div>
+                                            <div class='last_message'>${conversation.last_non_activity_message.content}</div>
+                                        </div>
+                                        `);
+            });
+        } else {
+            console.log("Error getting conversations");
+            return;
+        }
     }
 });

@@ -9,6 +9,8 @@ $(function () {
     // for better performance - to avoid searching in DOM
     const $input = $('#message');
     const $conversation_list = $('#conversation_list');
+    const $conversation_header = $('#conversation_header');
+    const $conversation_messages = $('#conversation_messages');
 
     // if user is running mozilla then use it's built-in WebSocket
     window.WebSocket = window.WebSocket || window.MozWebSocket;
@@ -97,7 +99,7 @@ $(function () {
     }
 
     async function getConversations() {
-        let url = "https://chat.connsecurity.com.br/api/v1/accounts/"+chatwoot.account_id+"/conversations";
+        let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations`;
         let init = {
             method: "GET",
             headers: {
@@ -110,7 +112,7 @@ $(function () {
         console.log("getConversations response:");
         console.log(jsonData);
         
-        // Check the messages array
+        // Check the conversations array
         const conversations = jsonData.data.payload;
         if (Array.isArray(conversations) && conversations) {
 
@@ -124,6 +126,41 @@ $(function () {
             });
         } else {
             console.log("Error getting conversations");
+            return;
+        }
+
+        // Load messages of the first conversation
+        $conversation_header.text(conversations[0].meta.sender.name);
+        getMessages(conversations[0].id);
+    }
+
+    async function getMessages(inbox_id) {
+        let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations/${inbox_id}/messages`;
+        let init = {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json;charset=UTF-8",
+                "api_access_token": chatwoot.user_api_access_token
+            }
+        }
+        const response = await fetch(url, init);
+        const jsonData = await response.json();
+        console.log("getMessages response:");
+        console.log(jsonData.payload);
+
+        // Check the messages array
+        const messages = jsonData.payload;
+        if (Array.isArray(messages) && messages) {
+
+            messages.forEach(message => {
+                $conversation_messages.append(`
+                                        <div class='message ${message.message_type ? 'sent' : 'received'}'>
+                                            ${message.content}
+                                        </div>
+                                        `);
+            });
+        } else {
+            console.log("Error getting messages");
             return;
         }
     }

@@ -11,6 +11,7 @@
     const conversation_list_elem = document.getElementById('conversation_list');
     const conversation_header_elem = document.getElementById('conversation_header');
     const conversation_messages_elem = document.getElementById('conversation_messages');
+    let active_conversation_elem;
 
     // if user is running mozilla then use it's built-in WebSocket
     window.WebSocket = window.WebSocket || window.MozWebSocket;
@@ -102,21 +103,20 @@
         
         // Check the conversations array
         const conversations = jsonData.data.payload;
-        if (Array.isArray(conversations) && conversations.length) {            
-            conversations.forEach(conversation => {
-                appendConversation(conversation.meta.sender.name, conversation.last_non_activity_message.content);
+        if (Array.isArray(conversations) && conversations.length) {
+            conversations.forEach(conversation => {        
+                appendConversation(conversation.id, conversation.meta.sender.name, conversation.last_non_activity_message.content);
             });
         } else {
             console.log("Error getting conversations");
             return;
         }
 
-        // Load messages of the first conversation
-        conversation_header_elem.textContent = conversations[0].meta.sender.name;
-        getMessages(conversations[0].id);
+        // Load first conversation
+        makeConversationActive(conversation_list_elem.firstElementChild);
     }
 
-    async function getMessages(inbox_id) {
+    async function getMessages(inbox_id) {       
         let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations/${inbox_id}/messages`;
         let init = {
             method: "GET",
@@ -126,7 +126,7 @@
             }
         }
         const response = await fetch(url, init);
-        const jsonData = await response.json();
+        const jsonData = await response.json();        
         console.log("getMessages response:");
         console.log(jsonData.payload);
 
@@ -142,14 +142,15 @@
         }
     }
 
-    function appendConversation(name, last_message) {
+    function appendConversation(id, name, last_message) {
         let conversation_item_elem = createElement("div", "conversation_item");
+        conversation_item_elem.conversation_id = id;
         let name_elem = createElement("div", "name", name);
         let last_message_elem = createElement("div", "last_message", last_message);
 
         conversation_item_elem.appendChild(name_elem);
         conversation_item_elem.appendChild(last_message_elem);
-        conversation_list_elem.appendChild(conversation_item_elem);
+        conversation_list_elem.appendChild(conversation_item_elem);        
     }
 
     function appendMessage(content, type) {
@@ -163,4 +164,34 @@
         elem.textContent = content;
         return elem;
     }
+
+    function makeConversationActive(conversation_elem) {
+
+        if (active_conversation_elem) {
+            active_conversation_elem.classList.remove("active");
+        }
+        active_conversation_elem = conversation_elem;
+        active_conversation_elem.classList.add("active");  
+
+        updateConversationHeader(active_conversation_elem);
+        emptyMessages();
+        getMessages(active_conversation_elem.conversation_id);
+    }
+
+    function updateConversationHeader(conversation_elem) {
+        conversation_header_elem.textContent = conversation_elem.querySelector(".name").textContent;
+    }
+
+    function emptyMessages() {
+        conversation_messages_elem.replaceChildren();
+    }
+
+    /**
+     * Listeners
+     */    
+    conversation_list_elem.addEventListener("click", function(e) {        
+        let conversation_item_elem = e.target.closest(".conversation_item");
+        makeConversationActive(conversation_item_elem);
+    });
+    
 })();

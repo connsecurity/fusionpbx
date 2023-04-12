@@ -102,7 +102,7 @@
         
         // Check the conversations array
         const conversations = jsonData.data.payload;
-        if (Array.isArray(conversations) && conversations) {            
+        if (Array.isArray(conversations) && conversations.length) {            
             conversations.forEach(conversation => {
                 appendConversation(conversation.meta.sender.name, conversation.last_non_activity_message.content);
             });
@@ -132,7 +132,7 @@
 
         // Check the messages array
         const messages = jsonData.payload;
-        if (Array.isArray(messages) && messages) {
+        if (Array.isArray(messages) && messages.length) {
             messages.forEach(message => {
                 appendMessage(message.content, message.message_type);
             });

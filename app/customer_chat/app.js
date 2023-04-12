@@ -2,9 +2,9 @@
     // window.chatwoot = {};
     // chatwoot.inbox_identifier = inbox_identifier;
     // chatwoot.chatwoot_api_url = "https://chat.connsecurity.com.br/api/v1/";
-	// chatwoot.contact_pubsub_token = contact_pubsub_token;
-	// chatwoot.account_id = account_id;
-	// chatwoot.user_id = user_id;
+    // chatwoot.contact_pubsub_token = contact_pubsub_token;
+    // chatwoot.account_id = account_id;
+    // chatwoot.user_id = user_id;
 
     // for better performance - to avoid searching in DOM
     const message_input_elem = document.getElementById('message_input');
@@ -22,63 +22,63 @@
         return;
     }
 
-	// open connection
-	var connection = new WebSocket('wss://chat.connsecurity.com.br/cable');
+    // open connection
+    var connection = new WebSocket('wss://chat.connsecurity.com.br/cable');
 
-	connection.onopen = function () {
-		
-		// subscribe websocket
+    connection.onopen = function () {
+
+        // subscribe websocket
         connection.send(JSON.stringify({
-			command:"subscribe", 
-			identifier: JSON.stringify({ 
-				channel: "RoomChannel", 
-				pubsub_token: chatwoot.contact_pubsub_token,
-				account_id: chatwoot.account_id,
-        		user_id: chatwoot.user_id
-			})
-		}));
+            command: "subscribe",
+            identifier: JSON.stringify({
+                channel: "RoomChannel",
+                pubsub_token: chatwoot.contact_pubsub_token,
+                account_id: chatwoot.account_id,
+                user_id: chatwoot.user_id
+            })
+        }));
     };
 
-	connection.onmessage = function(message) {
-		try {
+    connection.onmessage = function (message) {
+        try {
             var json = JSON.parse(message.data);
         } catch (e) {
             console.log('This doesn\'t look like a valid JSON: ', message.data);
             return;
         }
 
-		if (json.type === 'ping') {
-			//ignore
+        if (json.type === 'ping') {
+            //ignore
 
-		} else if (json.type === 'welcome') {
+        } else if (json.type === 'welcome') {
             getConversations();
 
         } else if (json.message.event === 'message.created') {
-			console.log('here comes message', json);
-			addMessage(json.message.data.sender.name, json.message.data.content); 
+            console.log('here comes message', json);
+            addMessage(json.message.data.sender.name, json.message.data.content);
 
-		} else {
-			console.log(message.data);
-		}
-	};
+        } else {
+            console.log(message.data);
+        }
+    };
 
-	connection.onerror = function(event) {
-	console.error('WebSocket error:', event);
-	};
+    connection.onerror = function (event) {
+        console.error('WebSocket error:', event);
+    };
 
-	connection.onclose = function(event) {
-	console.log('WebSocket connection closed:', event.code, event.reason);
-	};
+    connection.onclose = function (event) {
+        console.log('WebSocket connection closed:', event.code, event.reason);
+    };
 
-	/**
+    /**
      * Send mesage when user presses Enter key
      */
     //TODO
 
-	/**
+    /**
      * Add message to the chat window
      */
-	function addMessage(author, message) {
+    function addMessage(author, message) {
         //TODO
     }
 
@@ -100,11 +100,11 @@
         const jsonData = await response.json();
         console.log("getConversations response:");
         console.log(jsonData);
-        
+
         // Check the conversations array
         const conversations = jsonData.data.payload;
         if (Array.isArray(conversations) && conversations.length) {
-            conversations.forEach(conversation => {        
+            conversations.forEach(conversation => {
                 appendConversation(conversation.id, conversation.meta.sender.name, conversation.last_non_activity_message.content);
             });
         } else {
@@ -116,7 +116,7 @@
         makeConversationActive(conversation_list_elem.firstElementChild);
     }
 
-    async function getMessages(inbox_id) {       
+    async function getMessages(inbox_id) {
         let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations/${inbox_id}/messages`;
         let init = {
             method: "GET",
@@ -126,7 +126,7 @@
             }
         }
         const response = await fetch(url, init);
-        const jsonData = await response.json();        
+        const jsonData = await response.json();
         console.log("getMessages response:");
         console.log(jsonData.payload);
 
@@ -150,7 +150,7 @@
 
         conversation_item_elem.appendChild(name_elem);
         conversation_item_elem.appendChild(last_message_elem);
-        conversation_list_elem.appendChild(conversation_item_elem);        
+        conversation_list_elem.appendChild(conversation_item_elem);
     }
 
     function appendMessage(content, type) {
@@ -171,7 +171,7 @@
             active_conversation_elem.classList.remove("active");
         }
         active_conversation_elem = conversation_elem;
-        active_conversation_elem.classList.add("active");  
+        active_conversation_elem.classList.add("active");
 
         updateConversationHeader(active_conversation_elem);
         emptyMessages();
@@ -188,10 +188,10 @@
 
     /**
      * Listeners
-     */    
-    conversation_list_elem.addEventListener("click", function(e) {        
+     */
+    conversation_list_elem.addEventListener("click", function (e) {
         let conversation_item_elem = e.target.closest(".conversation_item");
         makeConversationActive(conversation_item_elem);
     });
-    
+
 })();

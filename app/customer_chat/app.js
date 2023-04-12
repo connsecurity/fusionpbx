@@ -7,10 +7,10 @@
 	// chatwoot.user_id = user_id;
 
     // for better performance - to avoid searching in DOM
-    const message_input = document.getElementById('message_input');
-    const conversation_list = document.getElementById('conversation_list');
-    const conversation_header = document.getElementById('conversation_header');
-    const conversation_messages = document.getElementById('conversation_messages');
+    const message_input_elem = document.getElementById('message_input');
+    const conversation_list_elem = document.getElementById('conversation_list');
+    const conversation_header_elem = document.getElementById('conversation_header');
+    const conversation_messages_elem = document.getElementById('conversation_messages');
 
     // if user is running mozilla then use it's built-in WebSocket
     window.WebSocket = window.WebSocket || window.MozWebSocket;
@@ -102,17 +102,9 @@
         
         // Check the conversations array
         const conversations = jsonData.data.payload;
-        if (Array.isArray(conversations) && conversations) {
-            
+        if (Array.isArray(conversations) && conversations) {            
             conversations.forEach(conversation => {
-                
-                let conversation_item = createElement("div", "conversation_item");
-                let name = createElement("div", "name", conversation.meta.sender.name);
-                let last_message = createElement("div", "last_message", conversation.last_non_activity_message.content);
-
-                conversation_item.appendChild(name);
-                conversation_item.appendChild(last_message);
-                conversation_list.appendChild(conversation_item);
+                appendConversation(conversation.meta.sender.name, conversation.last_non_activity_message.content);
             });
         } else {
             console.log("Error getting conversations");
@@ -120,7 +112,7 @@
         }
 
         // Load messages of the first conversation
-        conversation_header.textContent = conversations[0].meta.sender.name;
+        conversation_header_elem.textContent = conversations[0].meta.sender.name;
         getMessages(conversations[0].id);
     }
 
@@ -141,15 +133,28 @@
         // Check the messages array
         const messages = jsonData.payload;
         if (Array.isArray(messages) && messages) {
-
             messages.forEach(message => {
-                let message_elem = createElement("div", `message ${message.message_type ? 'sent' : 'received'}`, message.content);
-                conversation_messages.appendChild(message_elem);
+                appendMessage(message.content, message.message_type);
             });
         } else {
             console.log("Error getting messages");
             return;
         }
+    }
+
+    function appendConversation(name, last_message) {
+        let conversation_item_elem = createElement("div", "conversation_item");
+        let name_elem = createElement("div", "name", name);
+        let last_message_elem = createElement("div", "last_message", last_message);
+
+        conversation_item_elem.appendChild(name_elem);
+        conversation_item_elem.appendChild(last_message_elem);
+        conversation_list_elem.appendChild(conversation_item_elem);
+    }
+
+    function appendMessage(content, type) {
+        let message_elem = createElement("div", `message ${type ? 'sent' : 'received'}`, content);
+        conversation_messages_elem.appendChild(message_elem);
     }
 
     function createElement(tagName, classes, content) {

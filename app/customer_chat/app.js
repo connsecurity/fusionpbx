@@ -200,6 +200,15 @@
         conversation_item_elem.querySelector(".last_message").textContent = message;
     }
 
+    async function sendMessage(message, conversation_id) {
+        clearInput();
+        postMessage(message, conversation_id);
+    }
+
+    function clearInput() {
+        message_input_elem.value = "";
+    }
+
     async function postMessage(message, conversation_id) {
         let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations/${conversation_id}/messages`;
         let body = {
@@ -208,7 +217,7 @@
         const jsonData = await request(url, "POST", body);
         console.log(jsonData);
     }
-
+    
     async function request(url, method, body) {
         let init = {
             method: method,
@@ -235,12 +244,14 @@
         makeConversationActive(conversation_item_elem);
     });
 
-    message_input_elem.addEventListener("change", function () {
-        postMessage(message_input_elem.value, active_conversation_elem.conversation_id);
+    message_input_elem.addEventListener("keyup", function (e) {
+        if (e.key === "Enter") {
+            sendMessage(message_input_elem.value, active_conversation_elem.conversation_id);
+        }        
     });
 
     send_button_elem.addEventListener("click", function () {
-        postMessage(message_input_elem.value, active_conversation_elem.conversation_id);
+        sendMessage(message_input_elem.value, active_conversation_elem.conversation_id);
     });
 
 })();

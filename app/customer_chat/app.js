@@ -89,15 +89,7 @@
 
     async function getConversations() {
         let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations`;
-        let init = {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json;charset=UTF-8",
-                "api_access_token": chatwoot.user_api_access_token
-            }
-        }
-        const response = await fetch(url, init);
-        const jsonData = await response.json();
+        const jsonData = await request(url, "GET");
         console.log("getConversations response:");
         console.log(jsonData);
 
@@ -116,17 +108,9 @@
         makeConversationActive(conversation_list_elem.firstElementChild);
     }
 
-    async function getMessages(inbox_id) {
-        let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations/${inbox_id}/messages`;
-        let init = {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json;charset=UTF-8",
-                "api_access_token": chatwoot.user_api_access_token
-            }
-        }
-        const response = await fetch(url, init);
-        const jsonData = await response.json();
+    async function getMessages(conversation_id) {
+        let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations/${conversation_id}/messages`;
+        const jsonData = await request(url, "GET");
         console.log("getMessages response:");
         console.log(jsonData.payload);
 
@@ -184,6 +168,24 @@
 
     function emptyMessages() {
         conversation_messages_elem.replaceChildren();
+    }
+
+    async function request(url, method, body) {
+        let init = {
+            method: method,
+            headers: {
+                "Content-Type": "application/json;charset=UTF-8",
+                "api_access_token": chatwoot.user_api_access_token
+            },
+            body: JSON.stringify(body)
+        };
+        try {
+            const response = await fetch(url, init);
+            return await response.json();
+
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     /**

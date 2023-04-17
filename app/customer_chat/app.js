@@ -9,6 +9,7 @@
     // for better performance - to avoid searching in DOM
     const message_input_elem = document.getElementById('message_input');
     const conversation_list_elem = document.getElementById('conversation_list');
+    const conversation_list = [];
     const conversation_header_elem = document.getElementById('conversation_header');
     const conversation_messages_elem = document.getElementById('conversation_messages');
     let active_conversation_elem;
@@ -127,13 +128,15 @@
     }
 
     function appendConversation(id, name, last_message) {
-        let conversation_item_elem = createElement("div", "conversation_item");
-        conversation_item_elem.conversation_id = id;
         let name_elem = createElement("div", "name", name);
         let last_message_elem = createElement("div", "last_message", last_message);
+        let conversation_item_elem = createElement("div", "conversation_item");
 
+        conversation_item_elem.conversation_id = id;
         conversation_item_elem.appendChild(name_elem);
         conversation_item_elem.appendChild(last_message_elem);
+
+        conversation_list.push(conversation_item_elem);
         conversation_list_elem.appendChild(conversation_item_elem);
     }
 

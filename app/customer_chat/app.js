@@ -85,23 +85,6 @@
         console.log('WebSocket connection closed:', event.code, event.reason);
     };
 
-    /**
-     * Send mesage when user presses Enter key
-     */
-    //TODO
-
-    /**
-     * Add message to the chat window
-     */
-    function addMessage(author, message) {
-        //TODO
-    }
-
-    // Send Message to contact
-    function sendMessage(msg) {
-        //TODO
-    }
-
     async function getConversations() {
         let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations`;
         const jsonData = await request(url, "GET");

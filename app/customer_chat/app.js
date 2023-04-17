@@ -50,19 +50,32 @@
         }
 
         if (json.type === 'ping') {
-            //ignore
-
-        } else if (json.type === 'welcome') {
-            getConversations();
-
-        } else if (json.message.event === 'message.created') {
-            console.log('here comes message', json);
-            addMessage(json.message.data.sender.name, json.message.data.content);
-
-        } else {
-            console.log(message.data);
+            return;
         }
-    };
+
+        if (json.type === 'welcome') {
+            return;
+        }
+
+        if (json.type === 'confirm_subscription') {
+            getConversations();
+            return;
+        }
+
+        if (json.message.event === 'conversation.created') {
+            console.log('New Conversation');
+            createConversation(json.message.data);
+            return;
+        }
+
+        if (json.message.event === 'message.created') {
+            console.log('New Message');
+            handleMessage(json.message.data);
+            return;
+        }
+
+        console.log(json.message);
+    };    
 
     connection.onerror = function (event) {
         console.error('WebSocket error:', event);

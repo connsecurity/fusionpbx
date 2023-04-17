@@ -103,6 +103,10 @@
         }
     }
 
+    function createConversation(data) {
+        appendConversation(data.id, data.meta.sender.name);
+    }
+
     async function getConversations() {
         let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations`;
         const jsonData = await request(url, "GET");

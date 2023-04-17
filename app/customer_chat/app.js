@@ -85,6 +85,24 @@
         console.log('WebSocket connection closed:', event.code, event.reason);
     };
 
+    function handleMessage(message) {
+        if (message.account_id !== chatwoot.account_id) {
+            console.log("this is not mine");
+            return;
+        }
+
+        const conversation_item_elem = findConversationById(message.conversation_id);
+
+        if (conversation_item_elem) {
+            updateLastMessage(conversation_item_elem, message.content);
+        }
+
+        if (message.conversation_id === active_conversation_elem.conversation_id) {
+            appendMessage(message.content, message.message_type);
+            return;
+        }
+    }
+
     async function getConversations() {
         let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations`;
         const jsonData = await request(url, "GET");
@@ -168,6 +186,14 @@
 
     function emptyMessages() {
         conversation_messages_elem.replaceChildren();
+    }
+
+    function findConversationById(conversation_id) {
+        return conversation_list.find(conversation => { return conversation.conversation_id === conversation_id });
+    }
+
+    function updateLastMessage(conversation_item_elem, message) {
+        conversation_item_elem.querySelector(".last_message").textContent = message;
     }
 
     async function postMessage(message, conversation_id) {

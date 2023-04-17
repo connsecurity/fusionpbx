@@ -8,6 +8,7 @@
 
     // for better performance - to avoid searching in DOM
     const message_input_elem = document.getElementById('message_input');
+    const send_button_elem = document.getElementById('send_button');
     const conversation_list_elem = document.getElementById('conversation_list');
     const conversation_list = [];
     const conversation_header_elem = document.getElementById('conversation_header');
@@ -173,6 +174,15 @@
         conversation_messages_elem.replaceChildren();
     }
 
+    async function postMessage(message, conversation_id) {
+        let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations/${conversation_id}/messages`;
+        let body = {
+            content: message
+        };
+        const jsonData = await request(url, "POST", body);
+        console.log(jsonData);
+    }
+
     async function request(url, method, body) {
         let init = {
             method: method,
@@ -197,6 +207,14 @@
     conversation_list_elem.addEventListener("click", function (e) {
         let conversation_item_elem = e.target.closest(".conversation_item");
         makeConversationActive(conversation_item_elem);
+    });
+
+    message_input_elem.addEventListener("change", function () {
+        postMessage(message_input_elem.value, active_conversation_elem.conversation_id);
+    });
+
+    send_button_elem.addEventListener("click", function () {
+        postMessage(message_input_elem.value, active_conversation_elem.conversation_id);
     });
 
 })();

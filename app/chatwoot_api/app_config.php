@@ -29,4 +29,13 @@
 		$apps[$x]['description']['sv-se'] = "Chatwoot API";
 		$apps[$x]['description']['uk-ua'] = "Chatwoot API";
         
+	//default settings
+		$y=0;
+		$apps[$x]['default_settings'][$y]['default_setting_uuid'] = "d28b319b-f96c-4d2c-b0a0-b1a36b5defbb";
+		$apps[$x]['default_settings'][$y]['default_setting_category'] = "chat";
+		$apps[$x]['default_settings'][$y]['default_setting_subcategory'] = "chatwoot_url";
+		$apps[$x]['default_settings'][$y]['default_setting_name'] = "text";
+		$apps[$x]['default_settings'][$y]['default_setting_value'] = "";
+		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "false";
+		$apps[$x]['default_settings'][$y]['default_setting_description'] = "Base URL for chatwoot API calls";
 ?>

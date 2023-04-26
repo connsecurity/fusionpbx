@@ -46,4 +46,34 @@
 		$apps[$x]['default_settings'][$y]['default_setting_value'] = "";
 		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "false";
 		$apps[$x]['default_settings'][$y]['default_setting_description'] = "Chatwoot Platform Access Token";
+
+	//schema details
+		$y=0;
+		$apps[$x]['db'][$y]['table']['name'] = "v_chatwoot";
+		$apps[$x]['db'][$y]['table']['parent'] = "";
+		$z=0;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "account_id";
+		$apps[$x]['db'][$y]['fields'][$z]['type']['pgsql'] = "integer";
+		$apps[$x]['db'][$y]['fields'][$z]['type']['sqlite'] = "integer";
+		$apps[$x]['db'][$y]['fields'][$z]['type']['mysql'] = "int";
+		$apps[$x]['db'][$y]['fields'][$z]['key']['type'] = "primary";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "";
+		$z++;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "domain_uuid";
+		$apps[$x]['db'][$y]['fields'][$z]['type']['pgsql'] = "uuid";
+		$apps[$x]['db'][$y]['fields'][$z]['type']['sqlite'] = "text";
+		$apps[$x]['db'][$y]['fields'][$z]['type']['mysql'] = "char(36)";
+		$apps[$x]['db'][$y]['fields'][$z]['key']['type'] = "foreign";
+		$apps[$x]['db'][$y]['fields'][$z]['key']['reference']['table'] = "v_domains";
+		$apps[$x]['db'][$y]['fields'][$z]['key']['reference']['field'] = "domain_uuid";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "";
+
+	//permission details
+		$y=0;
+		$apps[$x]['permissions'][$y]['name'] = "chatwoot_api_view";
+		$apps[$x]['permissions'][$y]['menu']['uuid'] = "3fd0e3fc-ae45-41e0-a365-82c52efaadab";
+		$apps[$x]['permissions'][$y]['groups'][] = "superadmin";
+		$y++;
+		$apps[$x]['permissions'][$y]['name'] = "chatwoot_api_edit";
+		$apps[$x]['permissions'][$y]['groups'][] = "superadmin";
 ?>

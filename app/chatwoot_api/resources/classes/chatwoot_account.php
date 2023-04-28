@@ -17,33 +17,32 @@ if (!class_exists('chatwoot_account')) {
             $this->app_uuid = 'ea5150fb-8722-45a7-bea7-361d4dd54092';
         }
 
-
         /**
          * Creates chatwoot account
          * @param String $platforms Determines from where it creates: 'both', 'chatwoot' or 'fusion'
-         * @param ing $account_id Only needed if skipping chatwoot
-         * @return int|bool Returns the id on successfull creation, false if encounters any errors or NULL if invalid parameter
+         * @param int $account_id Only needed if skipping chatwoot
+         * @return chatwoot_account|bool Returns the object on successfull creation or false if encounters any errors
          */
-        public function create($platforms = 'both', $account_id = NULL) {
-
-            $this->account_id = $account_id;
+        public static function create($platforms = 'both', $account_id = NULL) {
 
             if ($platforms === "both" || $platforms === "chatwoot") {
                 //create in chatwoot
-                $this->account_id = create_account($_SESSION['domain_name']);
+                $account_id = create_account($_SESSION['domain_name']);
 
-                if ($this->account_id === false) {
+                if ($account_id === false) {
                     return false;
                 }
                 if ($platforms === "chatwoot") {
-                    return $this->account_id;
+                    $chatwoot_account = new static();
+                    $chatwoot_account->set_account_id($account_id);
+                    return $chatwoot_account;
                 }
             }
 
             if ($platforms === "both" || $platforms === "fusion") {
                 //prepare the array
-                $array['chatwoot_account'][0]['account_id'] = $this->account_id;
-                $array['chatwoot_account'][0]['domain_uuid'] = $this->domain_uuid;
+                $array['chatwoot_account'][0]['account_id'] = $account_id;
+                $array['chatwoot_account'][0]['domain_uuid'] = $_SESSION['domain_uuid'];
 
                 //add the temporary permission object
                 $p = new permissions;
@@ -51,8 +50,8 @@ if (!class_exists('chatwoot_account')) {
 
                 //save the data
                 $database = new database;
-                $database->app_name = $this->app_name;
-                $database->app_uuid = $this->app_uuid;
+                $database->app_name = 'Chatwoot API';
+                $database->app_uuid = 'ea5150fb-8722-45a7-bea7-361d4dd54092';
                 $success = $database->save($array);
                 $message = $database->message;
                 unset($array);
@@ -60,26 +59,26 @@ if (!class_exists('chatwoot_account')) {
                 $p->delete('chatwoot_account_add', 'temp');
 
                 if ($success) {
-                    return $this->account_id;
+                    $chatwoot_account = new static();
+                    $chatwoot_account->set_account_id($account_id);
+                    return $chatwoot_account;
                 } else {
                     return false;
                 }
             }
-
-            return NULL;
+            return false;
         }
-
 
         /**
          * Deletes chatwoot account
          * @param String $platforms Determines from where it deletes: 'both', 'chatwoot' or 'fusion'
-         * @return bool Returns true for successfull deletion, false if encounters any errors or NULL if invalid parameter
+         * @return bool Returns true for successfull deletion or false if encounters any errors
          */
         public function delete($platforms = "both") {
 
             if ($platforms === "both" || $platforms === "chatwoot") {
                 //delete in chatwoot
-                $success = delete_account($this->getId());
+                $success = delete_account($this->account_id);
                 if (!$success) {
                     return false;
                 }
@@ -107,12 +106,15 @@ if (!class_exists('chatwoot_account')) {
             return $success;
         }
 
-        public function getId() {
+        protected function set_account_id($account_id){
+            $this->account_id = $account_id;
+        }
 
-            if ($this->account_id) {
-                return $this->account_id;
-            }
+        public function get_account_id() {            
+            return $this->account_id;
+        }
 
+        public static function get_domain_account() {
             $sql = "SELECT \n";
             $sql .= "	account_id \n";
             $sql .= "FROM \n";
@@ -122,8 +124,15 @@ if (!class_exists('chatwoot_account')) {
 
             $parameters['domain_uuid'] = $_SESSION['domain_uuid'];
             $database = new database;
-            $this->account_id = $database->select($sql, $parameters, 'column');
-            return $this->account_id;
+            $account_id = $database->select($sql, $parameters, 'column');
+
+            if ($account_id === false) {
+                return false;
+            }
+
+            $chatwoot_account = new static();
+            $chatwoot_account->set_account_id($account_id);
+            return $chatwoot_account;
         }
 
     }

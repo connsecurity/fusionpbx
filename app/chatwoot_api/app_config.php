@@ -190,6 +190,14 @@
 		$apps[$x]['db'][$y]['fields'][$z]['key']['reference']['table'] = "v_chatwoot_account";
 		$apps[$x]['db'][$y]['fields'][$z]['key']['reference']['field'] = "account_id";
 		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "";
+		$z++;		
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "access_token";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "text";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "";
+		$z++;
+		$apps[$x]['db'][$y]['fields'][$z]['name'] = "pubsub_token";
+		$apps[$x]['db'][$y]['fields'][$z]['type'] = "text";
+		$apps[$x]['db'][$y]['fields'][$z]['description']['en-us'] = "";
 		$z++;
 		$apps[$x]['db'][$y]['fields'][$z]['name'] = "user_uuid";
 		$apps[$x]['db'][$y]['fields'][$z]['type']['pgsql'] = "uuid";

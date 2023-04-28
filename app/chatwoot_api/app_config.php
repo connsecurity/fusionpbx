@@ -46,6 +46,14 @@
 		$apps[$x]['default_settings'][$y]['default_setting_value'] = "";
 		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "false";
 		$apps[$x]['default_settings'][$y]['default_setting_description'] = "Chatwoot Platform Access Token";
+		$y++;
+		$apps[$x]['default_settings'][$y]['default_setting_uuid'] = "357201ba-9c6b-47ef-9aa3-c4989dc00718";
+		$apps[$x]['default_settings'][$y]['default_setting_category'] = "chat";
+		$apps[$x]['default_settings'][$y]['default_setting_subcategory'] = "user_access_token";
+		$apps[$x]['default_settings'][$y]['default_setting_name'] = "text";
+		$apps[$x]['default_settings'][$y]['default_setting_value'] = "";
+		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "false";
+		$apps[$x]['default_settings'][$y]['default_setting_description'] = "Chatwoot User Access Token";
 
 	//schema details
 		$y=0;

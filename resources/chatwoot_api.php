@@ -97,7 +97,16 @@ if (!function_exists('create_inbox')) {
         );
 
         $response = http_request($path, "POST", json_encode($body));
-        return $response;
+        return json_decode($response);
+    }
+}
+
+if (!function_exists('get_all_inbox')) {
+    function get_all_inbox($account_id) {
+        $path = "/api/v1/accounts/".$account_id."/inboxes";
+
+        $response = http_request($path, "GET");
+        return json_decode($response);
     }
 }
 

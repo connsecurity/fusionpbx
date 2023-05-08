@@ -54,6 +54,14 @@
 		$apps[$x]['default_settings'][$y]['default_setting_value'] = "";
 		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "false";
 		$apps[$x]['default_settings'][$y]['default_setting_description'] = "Chatwoot User Access Token";
+		$y++;
+		$apps[$x]['default_settings'][$y]['default_setting_uuid'] = "8e4ef1bb-67f5-46b7-9804-954ccef9dbdd";
+		$apps[$x]['default_settings'][$y]['default_setting_category'] = "chat";
+		$apps[$x]['default_settings'][$y]['default_setting_subcategory'] = "platform_user_id";
+		$apps[$x]['default_settings'][$y]['default_setting_name'] = "numeric";
+		$apps[$x]['default_settings'][$y]['default_setting_value'] = "";
+		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "false";
+		$apps[$x]['default_settings'][$y]['default_setting_description'] = "Fusion Administrador user Id";
 
 	//schema details
 		$y=0;

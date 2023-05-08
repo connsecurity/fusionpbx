@@ -49,6 +49,15 @@ if (!function_exists('delete_account')) {
     }
 }
 
+if (!function_exists('get_user')) {
+    function get_user($user_id) {
+        $path = "/platform/api/v1/users/".$user_id;
+
+        $response = http_request($path, "GET");
+        return json_decode($response);
+    }
+}
+
 if (!function_exists('create_user')) {
     function create_user($name, $email, $password, $custom_attributes = NULL) {
         $path = "/platform/api/v1/users";
@@ -61,14 +70,7 @@ if (!function_exists('create_user')) {
         );
 
         $response = http_request($path, "POST", json_encode($body));        
-        $json_response = json_decode($response, true);
-        
-        $id = $json_response["id"];
-        if ($id > 1) {
-            return $id;
-        } else {
-            return false;
-        }    
+        return json_decode($response);
     }
 }
 
@@ -84,6 +86,33 @@ if (!function_exists('delete_user')) {
             return false;
         }
     }
+}
+
+if (!function_exists('create_account_user')) {
+    function create_account_user($account_id, $user_id, $role = 'agent') {
+        $path = "/platform/api/v1/accounts/".$account_id."/account_users";
+
+        $body = array(
+            'user_id' => $user_id,
+            'role' => $role
+        );
+
+        $response = http_request($path, "POST", json_encode($body));
+        return json_decode($response);
+    }    
+}
+
+if (!function_exists('delete_account_user')) {
+    function delete_account_user($account_id, $user_id) {
+        $path = "/platform/api/v1/accounts/".$account_id."/account_users";
+
+        $body = array(
+            'user_id' => $user_id
+        );
+
+        $response = http_request($path, "DELETE", json_encode($body));
+        return $response;
+    }    
 }
 
 if (!function_exists('create_inbox')) {

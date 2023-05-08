@@ -30,6 +30,16 @@ if (!class_exists('chatwoot_account')) {
                 if ($account_id === false) {
                     return false;
                 }
+
+                //create fusion account user
+                $account_user = create_account_user($account_id, $_SESSION['chat']['platform_user_id']['numeric'], 'administrator');
+
+                //deletes account if we couldn't create the fusion account user
+                if (!$account_user->id > 0) {
+                    delete_account($account_id);
+                    return false;
+                }
+
                 if ($platforms === "chatwoot") {
                     $chatwoot_account = new static();
                     $chatwoot_account->set_account_id($account_id);

@@ -41,9 +41,7 @@ if (!class_exists('chatwoot_account')) {
                 }
 
                 if ($platforms === "chatwoot") {
-                    $chatwoot_account = new static();
-                    $chatwoot_account->set_account_id($account_id);
-                    return $chatwoot_account;
+                    return $account_id;
                 }
             }
 
@@ -67,9 +65,7 @@ if (!class_exists('chatwoot_account')) {
                 $p->delete('chatwoot_account_add', 'temp');
 
                 if ($success) {
-                    $chatwoot_account = new static();
-                    $chatwoot_account->set_account_id($account_id);
-                    return $chatwoot_account;
+                    return $account_id;
                 } else {
                     return false;
                 }
@@ -122,7 +118,7 @@ if (!class_exists('chatwoot_account')) {
             return $this->account_id;
         }
 
-        public static function get_domain_account() {
+        public static function get_domain_account_id() {
             $sql = "SELECT \n";
             $sql .= "	account_id \n";
             $sql .= "FROM \n";
@@ -137,10 +133,7 @@ if (!class_exists('chatwoot_account')) {
             if ($account_id === false) {
                 return false;
             }
-
-            $chatwoot_account = new static();
-            $chatwoot_account->set_account_id($account_id);
-            return $chatwoot_account;
+            return $account_id;
         }
 
     }

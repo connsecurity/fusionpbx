@@ -201,4 +201,23 @@ if (!function_exists('http_request')) {
     }
 }
 
+// https://stackoverflow.com/a/65030840
+if (!function_exists('generate_special_password')) {
+    function generate_special_password() {
+        $digits    = array_flip(range('0', '9'));
+        $lowercase = array_flip(range('a', 'z'));
+        $uppercase = array_flip(range('A', 'Z')); 
+        $special   = array_flip(str_split('!@#$%^&*()_+=-}{[}]|;:<>?/'));
+        $combined  = array_merge($digits, $lowercase, $uppercase, $special);
+
+        $response  = str_shuffle(array_rand($digits) .
+                                array_rand($lowercase) .
+                                array_rand($uppercase) . 
+                                array_rand($special) . 
+                                implode(array_rand($combined, random_int(9, 13))));
+        
+        return $response;
+    }
+}
+
 ?>

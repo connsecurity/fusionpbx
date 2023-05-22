@@ -144,7 +144,7 @@ if (!function_exists('get_inbox')) {
         $path = "/api/v1/accounts/".$account_id."/inboxes/".$inbox_id;
 
         $response = http_request($path, "GET");
-        return $response;
+        return json_decode($response);
     }
 }
 
@@ -165,7 +165,7 @@ if (!function_exists('get_inbox_agents')) {
         $path = "/api/v1/accounts/".$account_id."/inbox_members/".$inbox_id;
 
         $response = http_request($path, "GET");
-        return $response;
+        return json_decode($response, true);
     }
 }
 

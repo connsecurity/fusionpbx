@@ -148,6 +148,20 @@ if (!function_exists('get_inbox')) {
     }
 }
 
+if (!function_exists('update_inbox_agents')) {
+    function update_inbox_agents($account_id, $inbox_id, $agent_ids) {
+        $path = "/api/v1/accounts/".$account_id."/inbox_members";
+
+        $body = array(
+            'inbox_id' => $inbox_id,
+            'user_ids' => $agent_ids
+        );
+
+        $response = http_request($path, "PATCH", json_encode($body));
+        return json_decode($response, true);
+    }
+}
+
 if (!function_exists('delete_inbox')) {
     function delete_inbox($account_id, $inbox_id) {
         $path = "/api/v1/accounts/".$account_id."/inboxes/".$inbox_id;

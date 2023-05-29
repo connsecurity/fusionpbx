@@ -106,21 +106,38 @@ if (!class_exists('chatwoot_user')) {
             return $success;
         }
 
-        public static function get_user_list($account_id = NULL) {
+        public static function is_chatwoot_user($user_uuid) {
             $sql = "SELECT \n";
-            $sql .= "	user_id, \n";
-            $sql .= "   user_uuid, \n";
-            $sql .= "	account_id \n";
+            $sql .= "	1 \n";
             $sql .= "FROM \n";
             $sql .= "	v_chatwoot_user \n";
             $sql .= "WHERE \n";
-            $sql .= "	domain_uuid = :domain_uuid \n";
-            if ($account_id)
-            {
-                $sql .= "AND \n";
-                $sql .= "   account_id = :account_id \n";
-                $parameters['account_id'] = $account_id;
-            }
+            $sql .= "   user_uuid = :user_uuid \n";
+
+            $parameters['user_uuid'] = $user_uuid;
+            $database = new database;
+            $result = $database->select($sql, $parameters, 'row');
+
+            return $result;
+        }
+
+        public static function get_user_list($join_mode = 'INNER') {
+            $join_mode = $join_mode === 'INNER' ? 'INNER' : 'LEFT';
+
+            $sql = "SELECT \n";
+            $sql .= "	u.username, \n";
+            $sql .= "	u.user_uuid, \n";
+            $sql .= "   c.user_id \n";
+            $sql .= "FROM \n";
+            $sql .= "	v_users as u \n";
+            $sql .= $join_mode." JOIN \n";
+            $sql .= "   v_chatwoot_user as c \n";
+            $sql .= "ON \n";
+            $sql .= "(\n";
+            $sql .= "   u.user_uuid = c.user_uuid \n";
+            $sql .= ")\n";
+            $sql .= "WHERE \n";
+            $sql .= "   u.domain_uuid = :domain_uuid \n";
 
             $parameters['domain_uuid'] = $_SESSION['domain_uuid'];
             $database = new database;
@@ -129,20 +146,25 @@ if (!class_exists('chatwoot_user')) {
             return $result;
         }
 
-        public static function get_user($user_id) {
+        public static function get_user_by_uuid($user_uuid) {
             $sql = "SELECT \n";
-            $sql .= "	user_id, \n";
-            $sql .= "   user_uuid, \n";
-            $sql .= "	account_id, \n";
-            $sql .= "	domain_uuid, \n";
-            $sql .= "	access_token, \n";
-            $sql .= "	pubsub_token \n";
+            $sql .= "	c.user_id, \n";
+            $sql .= "   c.user_uuid, \n";
+            $sql .= "	c.account_id, \n";
+            $sql .= "	c.domain_uuid, \n";
+            $sql .= "	c.access_token, \n";
+            $sql .= "	c.pubsub_token, \n";
+            $sql .= "	u.username \n";
             $sql .= "FROM \n";
-            $sql .= "	v_chatwoot_user \n";
+            $sql .= "	v_chatwoot_user as c \n";
+            $sql .= "INNER JOIN \n";
+            $sql .= "   v_users as u \n";
+            $sql .= "USING \n";
+            $sql .= "   (user_uuid) \n";
             $sql .= "WHERE \n";
-            $sql .= "	user_id = :user_id \n";
+            $sql .= "	user_uuid = :user_uuid \n";
 
-            $parameters['user_id'] = $user_id;
+            $parameters['user_uuid'] = $user_uuid;
             $database = new database;
             $result = $database->select($sql, $parameters, 'row');
 

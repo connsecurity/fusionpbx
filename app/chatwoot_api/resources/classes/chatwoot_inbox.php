@@ -1,7 +1,5 @@
 <?php
 
-require_once "resources/chatwoot_api.php";
-
 if (!class_exists('chatwoot_inbox')) {
 	class chatwoot_inbox {
 

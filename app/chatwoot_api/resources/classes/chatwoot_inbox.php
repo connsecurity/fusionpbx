@@ -11,9 +11,9 @@ if (!class_exists('chatwoot_inbox')) {
         private $app_name;
         private $app_uuid;
 
-        public function __construct($account_id) {
+        protected function __construct() {
 
-            $this->account_id = $account_id;
+            $this->account_id = $_SESSION['chatwoot']['account']['id'];
             $this->domain_uuid = $_SESSION['domain_uuid'];
             $this->app_name = 'Chatwoot API';
             $this->app_uuid = 'ea5150fb-8722-45a7-bea7-361d4dd54092';
@@ -29,18 +29,17 @@ if (!class_exists('chatwoot_inbox')) {
          * @param int $inbox_id Only needed if skipping chatwoot
          * @return chatwoot_inbox|bool Returns the object on successfull creation or false if encounters any errors
          */
-        public static function create($account_id, $name, $channel, $platforms = 'both', $inbox_id = NULL) {
-
+        public static function create($name, $channel, $platforms = 'both', $inbox_id = NULL) {
             if ($platforms === "both" || $platforms === "chatwoot") {
                 //create in chatwoot
-                $inbox = create_inbox($account_id, $name, $channel);
+                $inbox = create_inbox($_SESSION['chatwoot']['account']['id'], $name, $channel);
                 $inbox_id = $inbox->id;
 
                 if ($inbox === false) {
                     return false;
                 }
                 if ($platforms === "chatwoot") {
-                    $chatwoot_inbox = new static($account_id);
+                    $chatwoot_inbox = new static();
                     $chatwoot_inbox->set_inbox_id($inbox_id);
                     return $chatwoot_inbox;
                 }
@@ -50,7 +49,7 @@ if (!class_exists('chatwoot_inbox')) {
 
                 //prepare the array
                 $array['chatwoot_inbox'][0]['inbox_id'] = $inbox_id;
-                $array['chatwoot_inbox'][0]['account_id'] = $account_id;
+                $array['chatwoot_inbox'][0]['account_id'] = $_SESSION['chatwoot']['account']['id'];
                 $array['chatwoot_inbox'][0]['domain_uuid'] = $_SESSION['domain_uuid'];
 
                 //add the temporary permission object
@@ -68,7 +67,7 @@ if (!class_exists('chatwoot_inbox')) {
                 $p->delete('chatwoot_inbox_add', 'temp');
 
                 if ($success) {
-                    $chatwoot_inbox = new static($account_id);
+                    $chatwoot_inbox = new static();
                     $chatwoot_inbox->set_inbox_id($inbox_id);
                     return $chatwoot_inbox;
                 } else {
@@ -124,7 +123,7 @@ if (!class_exists('chatwoot_inbox')) {
             $this->inbox_id = $inbox_id;
         }
 
-        public static function get_all_inbox($account_id) {
+        public static function get_all_inbox() {
             $sql = "SELECT \n";
             $sql .= "	inbox_id \n";
             $sql .= "FROM \n";
@@ -135,7 +134,7 @@ if (!class_exists('chatwoot_inbox')) {
             $sql .= "   account_id = :account_id";
 
             $parameters['domain_uuid'] = $_SESSION['domain_uuid'];
-            $parameters['account_id'] = $account_id;
+            $parameters['account_id'] = $_SESSION['chatwoot']['account']['id'];
 
             $database = new database;
             $result = $database->select($sql, $parameters, 'all');
@@ -147,8 +146,8 @@ if (!class_exists('chatwoot_inbox')) {
             return $result;
         }
 
-        public static function get_inbox($account_id, $inbox_id) {
-            $chatwoot_inbox = new static($account_id);
+        public static function get_inbox($inbox_id) {
+            $chatwoot_inbox = new static();
             $chatwoot_inbox->set_inbox_id($inbox_id);
             return $chatwoot_inbox;
         }

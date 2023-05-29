@@ -117,6 +117,22 @@ if (!class_exists('chatwoot_inbox')) {
             return $this->inbox_id;
         }
 
+        public function get_all_agents() {
+            
+            $user_list = chatwoot_user::get_user_list();
+            foreach ($user_list as $user) {
+                $id = $user['user_id'];
+                $agents['unassigned'][$id] = $user['username'];
+            }
+            $inbox_agents = get_inbox_agents($this->account_id, $this->inbox_id)['payload'];
+            foreach ($inbox_agents as $user) {
+                $id = $user['id'];
+                $agents['assigned'][$id] = $agents['unassigned'][$id];
+                unset($agents['unassigned'][$id]);
+            }
+            return $agents;
+        }
+
         protected function set_inbox_id($inbox_id) {
             $this->inbox_id = $inbox_id;
         }
@@ -142,6 +158,11 @@ if (!class_exists('chatwoot_inbox')) {
             }
             
             return $result;
+        }
+
+        public static function get_inbox_list() {
+            $inbox_list = get_all_inbox($_SESSION['chatwoot']['account']['id']);
+            return $inbox_list;
         }
 
         public static function get_inbox($inbox_id) {

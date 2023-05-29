@@ -12,11 +12,11 @@ if (!class_exists('chatwoot_user')) {
         private $app_name;
         private $app_uuid;
 
-        public function __construct($user_id, $user_uuid, $account_id) {
+        public function __construct($user_id, $user_uuid) {
 
             $this->user_id = $user_id;
             $this->user_uuid = $user_uuid;
-            $this->account_id = $account_id;
+            $this->account_id = $_SESSION['chatwoot']['account']['id'];
             $this->domain_uuid = $_SESSION['domain_uuid'];
             $this->app_name = 'Chatwoot API';
             $this->app_uuid = 'ea5150fb-8722-45a7-bea7-361d4dd54092';
@@ -25,7 +25,7 @@ if (!class_exists('chatwoot_user')) {
         public static function create($user_uuid, $account_id, $name, $email, $password, $custom_attributes = NULL) {
 
             $user_data = create_user($name, $email, $password, $custom_attributes);            
-            $chatwoot_user = new static($user_data->id, $user_uuid, $account_id);
+            $chatwoot_user = new static($user_data->id, $user_uuid);
 
             if (!$chatwoot_user->user_id > 0) {
                 // throw new RuntimeException("Error in chatwoot: ".$user_data->message);

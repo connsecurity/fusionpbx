@@ -4,7 +4,6 @@ require_once "root.php";
 require_once "resources/require.php";
 require_once "resources/check_auth.php";
 require "resources/meta_api.php";
-require "test_functions.php";
 
 //check permissions
 if (permission_exists('meta_view')) {

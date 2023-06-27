@@ -1,6 +1,6 @@
 <?php
 /*
-	Copyright (C) 2022 Mark J Crane <markjcrane@fusionpbx.com>
+	Copyright (C) 2022-2023 Mark J Crane <markjcrane@fusionpbx.com>
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -24,19 +24,12 @@
 
 //check the permission
 	if (defined('STDIN')) {
-		$document_root = str_replace("\\", "/", $_SERVER["PHP_SELF"]);
-		preg_match("/^(.*)\/app\/.*$/", $document_root, $matches);
-		$document_root = $matches[1];
-		set_include_path($document_root);
-		$_SERVER["DOCUMENT_ROOT"] = $document_root;
-		require_once "resources/require.php";
+		//includes files
+		require_once dirname(__DIR__, 4) . "/resources/require.php";
 	}
 	else {
 		//only allow running this from command line
 		exit;
-		include "root.php";
-		require_once "resources/require.php";
-		require_once "resources/pdo.php";
 	}
 
 //increase limits
@@ -54,6 +47,7 @@
 	if (isset($_GET['hostname'])) {
 		$hostname = urldecode($_GET['hostname']);
 	}
+	$debug = false;
 	if (isset($_GET['debug'])) {
 		if (is_numeric($_GET['debug'])) {
 			$debug_level = $_GET['debug'];
@@ -86,15 +80,7 @@
 		//loop through the chains
 		if (is_array($chains)) {
 			foreach ($chains as $chain) {
-				$command = "iptables --list INPUT --numeric | grep ".$chain." | awk '{print \$1}' | sed ':a;N;\$!ba;s/\\n/,/g' ";
-				//if ($debug) { echo $command."\n"; }
-				$response = shell($command);
-				if (!in_array($chain, explode(",", $response))) {
-					echo "Add iptables ".$chain." chain\n";
-					system('iptables --new '.$chain);
-					system('iptables -I INPUT -j '.$chain);
-					echo "\n";
-				}
+				iptables_chain_add($chain);
 			}
 		}
 	}
@@ -163,6 +149,9 @@
 				echo "Re-connected to event socket\n";
 			}
 			else {
+				//unable to connect to event socket
+				echo "Unable to connect to event socket\n";
+
 				//sleep and then attempt to reconnect
 				sleep(1);
 				continue;
@@ -219,9 +208,10 @@
 					}
 
 					//log the blocked ip address to the database
-					$array['event_guard_logs'][0]['event_guard_log_uuid'] = $row['event_guard_log_uuid'];
-					$array['event_guard_logs'][0]['log_date'] = 'now()';
-					$array['event_guard_logs'][0]['log_status'] = 'unblocked';
+					$array['event_guard_logs'][$x]['event_guard_log_uuid'] = $row['event_guard_log_uuid'];
+					$array['event_guard_logs'][$x]['log_date'] = 'now()';
+					$array['event_guard_logs'][$x]['log_status'] = 'unblocked';
+					$x++;
 				}
 				if (is_array($array)) {
 					$p = new permissions;
@@ -589,12 +579,13 @@
 			return false;
 		}
 
-		//get the access control allowed nodes
+		//check to see if the address was authenticated successfully
 		$sql = "select count(user_log_uuid) ";
 		$sql .= "from v_user_logs ";
-		$sql .= "where ip_address = :ip_address ";
+		$sql .= "where remote_address = :remote_address ";
 		$sql .= "and result = 'success' ";
-		$parameters['ip_address'] = $ip_address;  
+		$sql .= "and timestamp > NOW() - INTERVAL '8 days' ";
+		$parameters['remote_address'] = $ip_address;  
 		$database = new database;
 		$user_log_count = $database->select($sql, $parameters, 'column');
 		unset($database);
@@ -649,6 +640,44 @@
 
 		//return
 		return $allowed;
+	}
+
+//add IP table chains
+	function iptables_chain_add($chain) {
+		//if the chain exists return true
+		if (iptables_chain_exists($chain)) {
+			echo "IPtables ".$chain." chain already exists\n";
+			return true;
+		}
+
+		//log info to the console
+		echo "Add iptables ".$chain." chain\n";
+
+		//add the chain
+		system('iptables --new '.$chain);
+		system('iptables -I INPUT -j '.$chain);
+
+		//check if the chain exists
+		if (iptables_chain_exists($chain)) {
+			return true;
+		}
+		else {
+			sleep(1);
+			iptables_chain_add($chain);
+		}
+	}
+
+//check if the iptables chain exists
+	function iptables_chain_exists($chain) {
+		$command = "iptables --list INPUT --numeric | grep ".$chain." | awk '{print \$1}' | sed ':a;N;\$!ba;s/\\n/,/g' ";
+		//if ($debug) { echo $command."\n"; }
+		$response = shell($command);
+		if (in_array($chain, explode(",", $response))) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 ?>

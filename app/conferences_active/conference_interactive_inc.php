@@ -17,7 +17,7 @@
 
 	The Initial Developer of the Original Code is
 	Mark J Crane <markjcrane@fusionpbx.com>
-	Portions created by the Initial Developer are Copyright (C) 2008-2019
+	Portions created by the Initial Developer are Copyright (C) 2008-2023
 	the Initial Developer. All Rights Reserved.
 
 	Contributor(s):
@@ -25,9 +25,8 @@
 	James Rose <james.o.rose@gmail.com>
 */
 
-//includes
-	require_once "root.php";
-	require_once "resources/require.php";
+//includes files
+	require_once dirname(__DIR__, 2) . "/resources/require.php";
 	require_once "resources/check_auth.php";
 
 //check permissions
@@ -52,7 +51,7 @@
 	}
 
 //replace the space with underscore
-	$conference_name = $conference_id.'@'.$_SESSION['domain_name'];
+	$conference_name = !empty($conference_id).'@'.$_SESSION['domain_name'];
 
 //create the conference list command
 	$switch_cmd = "conference '".$conference_name."' xml_list";
@@ -93,7 +92,7 @@
 			$member_count = $xml->conference['member-count'];
 			$locked = $xml->conference['locked'];
 			$recording = $xml->conference['recording'];
-			if (strlen($member_count) == 0) {
+			if (empty($member_count)) {
 				$member_count = 0;
 			}
 	
@@ -114,17 +113,19 @@
 
 		$recording_dir = $_SESSION['switch']['recordings']['dir'].'/'.$_SESSION['domain_name'].'/archive/'.date("Y").'/'.date("M").'/'.date("d");
 		$recording_name = '';
-		if (file_exists($recording_dir.'/'.$row['uuid'].'.wav')) {
-			$recording_name = $session_uuid.".wav";
-		}
-		elseif (file_exists($recording_dir.'/'.$row['uuid'].'.mp3')) {
-			$recording_name = $session_uuid.".mp3";
+		if (!empty($recording_dir) && !empty($row['uuid'])) {
+			if (file_exists($recording_dir.'/'.$row['uuid'].'.wav')) {
+				$recording_name = $session_uuid.".wav";
+			}
+			else if (file_exists($recording_dir.'/'.$row['uuid'].'.mp3')) {
+				$recording_name = $session_uuid.".mp3";
+			}
 		}
 
-		echo "<img src='resources/images/".(($recording == "true") ? "recording.png" : "not_recording.png")."' style='width: 16px; height: 16px; border: none;' align='absmiddle' title=\"".$text['label-'.(($recording == "true") ? 'recording' : 'not-recording')]."\">&nbsp;&nbsp;";
+		echo "<img src='resources/images/".(!empty($recording) && $recording == "true" ? "recording.png" : "not_recording.png")."' style='width: 16px; height: 16px; border: none;' align='absmiddle' title=\"".$text['label-'.(!empty($recording) && $recording == "true" ? 'recording' : 'not-recording')]."\">&nbsp;&nbsp;";
 
 		if (permission_exists('conference_interactive_lock')) {
-			if ($locked == 'true') {
+			if (!empty($locked) && $locked == 'true') {
 				echo button::create(['type'=>'button','label'=>$text['label-unlock'],'icon'=>'unlock','collapse'=>'hide-xs','onclick'=>"send_cmd('conference_exec.php?cmd=conference&name=".urlencode($conference_name)."&data=unlock');"]);
 			}
 			else {
@@ -132,7 +133,7 @@
 			}
 		}
 		if (permission_exists('conference_interactive_mute')) {
-			if ($mute_all == 'true') {
+			if (!empty($mute_all) && $mute_all == 'true') {
 				echo button::create(['type'=>'button','label'=>$text['label-unmute-all'],'icon'=>'microphone','collapse'=>'hide-xs','onclick'=>"send_cmd('conference_exec.php?cmd=conference&name=".urlencode($conference_name)."&data=unmute+non_moderator');"]);
 			}
 			else {
@@ -142,7 +143,7 @@
 		echo button::create(['type'=>'button','label'=>$text['label-end-conference'],'icon'=>'stop','collapse'=>'hide-xs','onclick'=>"send_cmd('conference_exec.php?cmd=conference&name=".urlencode($conference_name)."&data=kick+all');"]);
 
 		echo "</div>\n";
-		echo "<strong>".$text['label-members'].": ".escape($member_count)."</strong>\n";
+		echo "<strong>".$text['label-members'].": ".escape($member_count ?? '')."</strong>\n";
 		echo "<br /><br />\n";
 
 		echo "<table class='list'>\n";
@@ -184,11 +185,11 @@
 				$caller_id_number = $row->caller_id_number;
 				$switch_cmd = "uuid_getvar ".$uuid. " hand_raised";
 				$hand_raised = (trim(event_socket_request($fp, 'api '.$switch_cmd)) == "true") ? "true" : "false";
-				//format seconds
-				$join_time_formatted = sprintf('%02d:%02d:%02d', ($join_time/3600), ($join_time/60%60), $join_time%60);
-				$last_talking_formatted = sprintf('%02d:%02d:%02d', ($last_talking/3600), ($last_talking/60%60), $last_talking%60);
+				//format secondsfloor(floor($fifo_duration / 60) % 60)
+				$join_time_formatted = sprintf('%02d:%02d:%02d', floor($join_time / 3600), floor(floor($join_time / 60) % 60), $join_time % 60);
+				$last_talking_formatted = sprintf('%02d:%02d:%02d', floor($last_talking / 3600), floor(floor($last_talking / 60) % 60), $last_talking % 60);
 
-				if (strlen($record_path) == 0) {
+				if (empty($record_path)) {
 					if (permission_exists('conference_interactive_mute')) {
 						$action_mute = ($flag_can_speak == "true") ? 'mute' : 'unmute';
 						$list_row_onclick = "onclick=\"send_cmd('conference_exec.php?cmd=conference&name=".urlencode($conference_name)."&data=".$action_mute."&id=".urlencode($id)."');\"";
@@ -213,9 +214,9 @@
 					echo "<td ".$list_row_onclick." ".$list_row_title." class='hide-sm-dn'>".$text['label-'.(($hand_raised == "true") ? 'yes' : 'no')]." ".$hand_raise_icon."</td>\n";
 					echo "<td ".$list_row_onclick." ".$list_row_title." class='center'>";
 					echo 	($flag_can_speak == "true") ? "<i class='fas fa-microphone fa-fw' title=\"".$text['label-speak']."\"></i>" : "<i class='fas fa-microphone-slash fa-fw' title=\"".$text['label-speak']."\"></i>";
-					echo 	($flag_can_hear == "true") ? "<i class='fas fa-headphones fa-fw' title=\"".$text['label-speak']."\" style='margin-left: 10px;'></i>" : "<i class='fas fa-deaf fa-fw' title=\"".$text['label-hear']."\" style='margin-left: 10px;'></i>";
+					echo 	($flag_can_hear == "true") ? "<i class='fas fa-headphones fa-fw' title=\"".$text['label-hear']."\" style='margin-left: 10px;'></i>" : "<i class='fas fa-deaf fa-fw' title=\"".$text['label-hear']."\" style='margin-left: 10px;'></i>";
 					if (permission_exists('conference_interactive_video')) {
-						echo ($flag_has_video == "true") ? "<i class='fas fa-video fa-fw' title=\"".$text['label-video']."\"></i>" : null;
+						echo ($flag_has_video == "true") ? "<i class='fas fa-video fa-fw' title=\"".$text['label-video']."\" style='margin-left: 10px;'></i>" : null;
 					}
 					echo "</td>\n";
 					//energy

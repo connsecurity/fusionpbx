@@ -17,16 +17,15 @@
 
 	The Initial Developer of the Original Code is
 	Mark J Crane <markjcrane@fusionpbx.com>
-	Copyright (C) 2008-2020 All Rights Reserved.
+	Copyright (C) 2008-2023 All Rights Reserved.
 
 	Contributor(s):
 	Mark J Crane <markjcrane@fusionpbx.com>
 	Luis Daniel Lucio Quiroz <dlucio@okay.com.mx>
 */
 
-//includes
-	include "root.php";
-	require_once "resources/require.php";
+//includes files
+	require_once dirname(__DIR__, 2) . "/resources/require.php";
 	require_once "resources/functions/device_by.php";
 
 //logging
@@ -42,7 +41,7 @@
 	$mac = $_REQUEST['mac'];
 	$file = $_REQUEST['file'];
 	$ext = $_REQUEST['ext'];
-	//if (strlen($_REQUEST['template']) > 0) {
+	//if (!empty($_REQUEST['template'])) {
 	//	$device_template = $_REQUEST['template'];
 	//}
 
@@ -141,8 +140,8 @@
 			}
 	}
 
-//get the domain_uuid
-	$sql = "select d.device_uuid, d.domain_uuid, n.domain_name ";
+//get the domain_uuid, domain_name, device_name and device_vendor
+	$sql = "select d.device_uuid, d.domain_uuid, d.device_vendor, n.domain_name ";
 	$sql .= "from v_devices as d, v_domains as n ";
 	$sql .= "where device_mac_address = :mac ";
 	$sql .= "and d.domain_uuid = n.domain_uuid; ";
@@ -153,6 +152,7 @@
 		$device_uuid = $row['device_uuid'];
 		$domain_uuid = $row['domain_uuid'];
 		$domain_name = $row['domain_name'];
+		$device_vendor = $row['device_vendor'];
 		$_SESSION['domain_uuid'] = $domain_uuid;
 	}
 	unset($sql, $parameters);
@@ -188,7 +188,7 @@
 			$name = $row['default_setting_name'];
 			$category = $row['default_setting_category'];
 			$subcategory = $row['default_setting_subcategory'];
-			if (strlen($subcategory) == 0) {
+			if (empty($subcategory)) {
 				if ($name == "array") {
 					$_SESSION[$category][] = $row['default_setting_value'];
 				}
@@ -233,7 +233,7 @@
 				$name = $row['domain_setting_name'];
 				$category = $row['domain_setting_category'];
 				$subcategory = $row['domain_setting_subcategory'];
-				if (strlen($subcategory) == 0) {
+				if (empty($subcategory)) {
 					//$$category[$name] = $row['domain_setting_value'];
 					if ($name == "array") {
 						$_SESSION[$category][] = $row['domain_setting_value'];
@@ -257,11 +257,11 @@
 
 //build the provision array
 	foreach($_SESSION['provision'] as $key=>$val) {
-		if (strlen($val['var']) > 0) { $value = $val['var']; }
-		if (strlen($val['text']) > 0) { $value = $val['text']; }
-		if (strlen($val['boolean']) > 0) { $value = $val['boolean']; }
-		if (strlen($val['numeric']) > 0) { $value = $val['numeric']; }
-		if (strlen($value) > 0) { $provision[$key] = $value; }
+		if (!empty($val['var'])) { $value = $val['var']; }
+		if (!empty($val['text'])) { $value = $val['text']; }
+		if (!empty($val['boolean'])) { $value = $val['boolean']; }
+		if (!empty($val['numeric'])) { $value = $val['numeric']; }
+		if (!empty($value)) { $provision[$key] = $value; }
 		unset($value);
 	}
 
@@ -272,7 +272,7 @@
 	}
 
 //send a request to a remote server to validate the MAC address and secret
-	if (strlen($_SERVER['auth_server']) > 0) {
+	if (!empty($_SERVER['auth_server'])) {
 		$result = send_http_request($_SERVER['auth_server'], 'mac='.check_str($_REQUEST['mac']).'&secret='.check_str($_REQUEST['secret']));
 		if ($result == "false") {
 			syslog(LOG_WARNING, '['.$_SERVER['REMOTE_ADDR']."] provision attempt but the remote auth server said no for ".check_str($_REQUEST['mac']));
@@ -281,10 +281,12 @@
 	}
 
 //use the mac address to get the vendor
-	$device_vendor = device::get_vendor($mac);
+	if (empty($device_vendor)) {
+		$device_vendor = device::get_vendor($mac);
+	}
 
 //keep backwards compatibility
-	if (strlen($_SESSION['provision']["cidr"]["text"]) > 0) {
+	if (!empty($_SESSION['provision']["cidr"]["text"])) {
 		$_SESSION['provision']["cidr"][] = $_SESSION['provision']["cidr"]["text"];
 	}
 
@@ -304,8 +306,8 @@
 	}
 
 //http authentication - digest
-	if (strlen($provision["http_auth_username"]) > 0 && strlen($provision["http_auth_type"]) == 0) { $provision["http_auth_type"] = "digest"; }
-	if (strlen($provision["http_auth_username"]) > 0 && $provision["http_auth_type"] === "digest" && $provision["http_auth_enabled"] === "true") {
+	if (!empty($provision["http_auth_username"]) && empty($provision["http_auth_type"])) { $provision["http_auth_type"] = "digest"; }
+	if (!empty($provision["http_auth_username"]) && $provision["http_auth_type"] === "digest" && $provision["http_auth_enabled"] === "true") {
 		//function to parse the http auth header
 			function http_digest_parse($txt) {
 				//protect against missing data
@@ -376,7 +378,7 @@
 	}
 
 //http authentication - basic
-	if (strlen($provision["http_auth_username"]) > 0 && $provision["http_auth_type"] === "basic" && $provision["http_auth_enabled"] === "true") {
+	if (!empty($provision["http_auth_username"]) && $provision["http_auth_type"] === "basic" && $provision["http_auth_enabled"] === "true") {
 		if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			header('WWW-Authenticate: Basic realm="'.$_SESSION['domain_name'].'"');
 			header('HTTP/1.0 401 Authorization Required');
@@ -412,10 +414,9 @@
 	}
 
 //if password was defined in the system -> variables page then require the password.
-	if (strlen($provision['password']) > 0) {
+	if (!empty($provision['password'])) {
 		//deny access if the password doesn't match
 		if ($provision['password'] != check_str($_REQUEST['password'])) {
-			syslog(LOG_WARNING, '['.$_SERVER['REMOTE_ADDR']."] provision attempt bad password for ".check_str($_REQUEST['mac']));
 			//log the failed auth attempt to the system, to be available for fail2ban.
 			openlog('FusionPBX', LOG_NDELAY, LOG_AUTH);
 			syslog(LOG_WARNING, '['.$_SERVER['REMOTE_ADDR']."] provision attempt bad password for ".check_str($_REQUEST['mac']));
@@ -467,14 +468,13 @@
 			header("Content-Length: ".strlen($file_contents));
 		}
 		else {
-			$result = simplexml_load_string ($file_contents, 'SimpleXmlElement', LIBXML_NOERROR+LIBXML_ERR_FATAL+LIBXML_ERR_NONE);
-			if (false == $result){
-				header("Content-Type: text/plain");
-				header("Content-Length: ".strval(strlen($file_contents)));
-			}
-			else {
+			if (is_xml($file_contents)) {
 				header("Content-Type: text/xml; charset=utf-8");
 				header("Content-Length: ".strlen($file_contents));
+			}
+			else {
+				header("Content-Type: text/plain");
+				header("Content-Length: ".strval(strlen($file_contents)));
 			}
 		}
 	}

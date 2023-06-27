@@ -24,9 +24,8 @@
 	Mark J Crane <markjcrane@fusionpbx.com>
 */
 
-//includes
-	include "root.php";
-	require_once "resources/require.php";
+//includes files
+	require_once dirname(__DIR__, 2) . "/resources/require.php";
 	require_once "resources/check_auth.php";
 
 //check permissions
@@ -153,7 +152,7 @@
 	}
 
 //normalize the mac address
-	if (isset($device_mac_address) && strlen($device_mac_address) > 0) {
+	if (isset($device_mac_address) && !empty($device_mac_address)) {
 		$device_mac_address = strtolower($device_mac_address);
 		$device_mac_address = preg_replace('#[^a-fA-F0-9./]#', '', $device_mac_address);
 	}

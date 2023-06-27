@@ -17,7 +17,7 @@
 
  The Initial Developer of the Original Code is
  Mark J Crane <markjcrane@fusionpbx.com>
- Portions created by the Initial Developer are Copyright (C) 2008-2021
+ Portions created by the Initial Developer are Copyright (C) 2008-2023
  the Initial Developer. All Rights Reserved.
 
  Contributor(s):
@@ -52,16 +52,6 @@ if (!class_exists('registrations')) {
 		}
 
 		/**
-		 * called when there are no references to a particular object
-		 * unset the variables used in the class
-		 */
-		public function __destruct() {
-			foreach ($this as $key => $value) {
-				unset($this->$key);
-			}
-		}
-
-		/**
 		 * get the registrations
 		 */
 		public function get($profile = 'all') {
@@ -81,7 +71,7 @@ if (!class_exists('registrations')) {
 				}
 				$sql .= "and sip_profile_enabled = 'true' ";
 				$database = new database;
-				$sip_profiles = $database->select($sql, $parameters, 'all');
+				$sip_profiles = $database->select($sql, $parameters ?? null, 'all');
 				if (is_array($sip_profiles) && @sizeof($sip_profiles) != 0) {
 					foreach ($sip_profiles as $field) {
 
@@ -90,7 +80,7 @@ if (!class_exists('registrations')) {
 							$xml_response = trim(event_socket_request($fp, $cmd));
 							if (function_exists('iconv')) { $xml_response = iconv("utf-8", "utf-8//IGNORE", $xml_response); }
 							$xml_response = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $xml_response);
-							if ($xml_response == "Invalid Profile!") { $xml_response = "<error_msg>".$text['label-message']."</error_msg>"; }
+							if ($xml_response == "Invalid Profile!") { $xml_response = "<error_msg>".!empty($text['label-message'])."</error_msg>"; }
 							$xml_response = str_replace("<profile-info>", "<profile_info>", $xml_response);
 							$xml_response = str_replace("</profile-info>", "</profile_info>", $xml_response);
 							$xml_response = str_replace("&lt;", "", $xml_response);
@@ -110,30 +100,33 @@ if (!class_exists('registrations')) {
 							}
 
 						//normalize the array
-							if (is_array($array) && !is_array($array['registrations']['registration'][0])) {
+							if (!empty($array) && is_array($array) && (!isset($array['registrations']['registration'][0]) || !is_array($array['registrations']['registration'][0]))) {
 								$row = $array['registrations']['registration'];
 								unset($array['registrations']['registration']);
 								$array['registrations']['registration'][0] = $row;
 							}
 
 						//set the registrations array
-							if (is_array($array)) {
+							if (!empty($array) && is_array($array)) {
 								foreach ($array['registrations']['registration'] as $row) {
 
 									//build the registrations array
 										//$registrations[0] = $row;
-										$user_array = explode('@', $row['user']);
-										$registrations[$id]['user'] = $row['user'] ?: '';
-										$registrations[$id]['call-id'] = $row['call-id'] ?: '';
-										$registrations[$id]['contact'] = $row['contact'] ?: '';
-										$registrations[$id]['sip-auth-user'] = $row['sip-auth-user'] ?: '';
-										$registrations[$id]['agent'] = $row['agent'] ?: '';
-										$registrations[$id]['host'] = $row['host'] ?: '';
-										$registrations[$id]['network-port'] = $row['network-port'] ?: '';
-										$registrations[$id]['sip-auth-realm'] = $row['sip-auth-realm'] ?: '';
-										$registrations[$id]['mwi-account'] = $row['mwi-account'] ?: '';
-										$registrations[$id]['status'] = $row['status'] ?: '';
-										$registrations[$id]['ping-time'] = $row['ping-time'] ?: '';
+										$user_array = explode('@', $row['user'] ?? '');
+										$registrations[$id]['user'] = $row['user'] ?? '';
+										$registrations[$id]['call-id'] = $row['call-id'] ?? '';
+										$registrations[$id]['contact'] = $row['contact'] ?? '';
+										$registrations[$id]['sip-auth-user'] = $row['sip-auth-user'] ?? '';
+										$registrations[$id]['agent'] = $row['agent'] ?? '';
+										$registrations[$id]['host'] = $row['host'] ?? '';
+										$registrations[$id]['network-ip'] = $row['network-ip'] ?? '';
+										$registrations[$id]['network-port'] = $row['network-port'] ?? '';
+										$registrations[$id]['sip-auth-user'] = $row['sip-auth-user'] ?? '';
+										$registrations[$id]['sip-auth-realm'] = $row['sip-auth-realm'] ?? '';
+										$registrations[$id]['mwi-account'] = $row['mwi-account'] ?? '';
+										$registrations[$id]['status'] = $row['status'] ?? '';
+										$registrations[$id]['ping-time'] = $row['ping-time'] ?? '';
+										$registrations[$id]['ping-status'] = $row['ping-status'] ?? '';
 										$registrations[$id]['sip_profile_name'] = $field['sip_profile_name'];
 
 									//get network-ip to url or blank
@@ -145,7 +138,7 @@ if (!class_exists('registrations')) {
 										}
 
 									//get the LAN IP address if it exists replace the external ip
-										$call_id_array = explode('@', $row['call-id']);
+										$call_id_array = explode('@', $row['call-id'] ?? '');
 										if (isset($call_id_array[1])) {
 											$agent = $row['agent'];
 											$lan_ip = $call_id_array[1];
@@ -161,7 +154,7 @@ if (!class_exists('registrations')) {
 											}
 											$registrations[$id]['lan-ip'] = $lan_ip;
 										}
-										else if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $row['contact'], $ip_match)) {
+										else if (preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $row['contact'] ?? '', $ip_match)) {
 											$lan_ip = preg_replace('/_/', '.', $ip_match[0]);
 											$registrations[$id]['lan-ip'] = "$lan_ip";
 										}
@@ -188,7 +181,7 @@ if (!class_exists('registrations')) {
 				}
 
 			//return the registrations array
-				return $registrations;
+				return $registrations ?? null;
 		}
 
 		/**
@@ -200,7 +193,7 @@ if (!class_exists('registrations')) {
 				$registrations = $this->get($profile);
 
 			//set the count
-				$count = @sizeof($registrations);
+				$count = !empty($registrations) ? @sizeof($registrations) : 0;
 
 			//return the registrations count
 				return $count;

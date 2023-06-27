@@ -25,9 +25,8 @@
 	James Rose <james.o.rose@gmail.com>
 */
 
-//includes
-include "root.php";
-require_once "resources/require.php";
+//includes files
+	require_once dirname(__DIR__, 2) . "/resources/require.php";
 require_once "resources/functions/object_to_array.php";
 require_once "resources/functions/parse_message.php";
 require_once "resources/classes/text.php";
@@ -102,7 +101,7 @@ if (is_array($result) && @sizeof($result) != 0) {
 		load_domain_settings($domain_uuid);
 
 		$fax_cover_font = $_SESSION['fax']['cover_font']['text'];
-		if(strlen($fax_cover_font) == 0){
+		if(empty($fax_cover_font)){
 			$fax_cover_font = $fax_cover_font_default;
 		}
 
@@ -309,7 +308,7 @@ function load_default_settings() {
 			$name = $row['default_setting_name'];
 			$category = $row['default_setting_category'];
 			$subcategory = $row['default_setting_subcategory'];
-			if (strlen($subcategory) == 0) {
+			if (empty($subcategory)) {
 				if ($name == "array") {
 					$settings[$category][] = $row['default_setting_value'];
 				}
@@ -356,7 +355,7 @@ function load_domain_settings($domain_uuid) {
 					$name = $row['domain_setting_name'];
 					$category = $row['domain_setting_category'];
 					$subcategory = $row['domain_setting_subcategory'];
-					if (strlen($subcategory) == 0) {
+					if (empty($subcategory)) {
 						//$$category[$name] = $row['domain_setting_value'];
 						if ($name == "array") {
 							$_SESSION[$category][] = $row['domain_setting_value'];

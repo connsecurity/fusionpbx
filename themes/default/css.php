@@ -2160,12 +2160,24 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 
 	}
 
+	.conversation_item.active {
+		background-color: rgb(245, 245, 245);
+	}
+
 	.conversation_item > .name {
 
 	}
 
 	.conversation_item > .last_message {
 		
+	}
+
+	#conversation_messages > .message.received {
+		color: red;
+	}
+
+	#conversation_messages > .message.sent {
+		color: blue;
 	}
 
 /* META ***************************************************************************/

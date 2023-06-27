@@ -2168,6 +2168,81 @@ header('Expires: '.gmdate('D, d M Y H:i:s',time()+3600).' GMT');
 		
 	}
 
+/* META ***************************************************************************/
+
+	button.facebook {
+		background-color: #1877f2;
+		border: 0;
+		border-radius: 4px;
+		color: #fff;
+		cursor: pointer;
+		font-family: Helvetica, Arial, sans-serif;
+		font-size: 12px;
+		font-weight: bold;
+		height: 28px;
+		padding: 0 12px;
+	}
+
+	.waba {
+		box-shadow: 1px 1px 1px rgb(0 0 0 / 20%), 
+				2px 2px 2px rgb(0 0 0 / 15%), 
+				4px 4px 4px rgb(0 0 0 / 10%),
+				0px 0px 20px rgb(0 0 0 / 5%);
+		border-radius: 4px;
+		padding: 16px;
+	}
+
+	.waba_phone_number {		
+		padding-left: 16px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.template_category {
+		border-style: solid;
+		border-width: 1px;
+		border-radius: 4px;
+		padding: 2px;
+		margin-left: 1vw;
+	}
+
+	.template_status {
+		background-color: rgb(0 0 0 / 5%);
+		border-width: 1px;
+		border-radius: 999px;
+		padding-top: 2px;
+		padding-right: 6px;
+		padding-left: 6px;
+		padding-bottom: 2px;
+		margin-left: 1vw;
+		font-size: 11px;
+		font-weight: bold;
+	}
+
+	.template_status.approved {
+		background-color: rgb(235 242 230);
+		color: rgb(0 126 89);
+	}
+
+	.waba_template_component {
+		margin-bottom: 1vh;
+	}
+
+	.waba_template_component_type {
+		font-size: 13px;
+		font-weight: bold;
+		color: black;
+	}
+
+	.waba_template_component_text {
+		border-style: solid;
+		border-color: rgb(204 208 213);
+		border-width: 2px;
+		border-radius: 4px;
+		background-color: rgb(250 250 250);
+		padding: 4px;
+	}
+
 /* DASHBOARD **********************************************************************/
 
 	/* login message */

@@ -1,7 +1,6 @@
 <?php
 //includes
-require_once "root.php";
-require_once "resources/require.php";
+require_once dirname(__DIR__, 2) . "/resources/require.php";
 require_once "resources/check_auth.php";
 require "resources/meta_api.php";
 

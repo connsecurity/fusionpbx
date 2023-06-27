@@ -245,9 +245,9 @@
     });
 
     message_input_elem.addEventListener("keyup", function (e) {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && !e.shiftKey) {
             sendMessage(message_input_elem.value, active_conversation_elem.conversation_id);
-        }        
+        }
     });
 
     send_button_elem.addEventListener("click", function () {

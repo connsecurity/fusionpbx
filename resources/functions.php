@@ -1552,6 +1552,16 @@ function number_pad($number,$n) {
 		}
 	}
 
+//title case
+	function title_case($string) {
+		if (function_exists('mb_convert_case')) {
+			return mb_convert_case($string, MB_CASE_TITLE, 'UTF-8');
+		}
+		else {
+			return ucwords(strtolower($string));
+		}
+	}
+
 //write javascript function that detects select key combinations to perform designated actions
 	if (!function_exists('key_press')) {
 		function key_press($key, $direction = 'up', $subject = 'document', $exceptions = array(), $prompt = null, $action = null, $script_wrapper = true) {

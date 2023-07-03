@@ -49,6 +49,7 @@ if (!class_exists('button')) {
 			//button: open
 				$button = "<button ";
 				$button .= "type='".(!empty($array['type']) ? $array['type'] : 'button')."' ";
+				$button .= !empty($array['form']) ? "form=".self::quote($array['form'])." " : null;
 				$button .= !empty($array['name']) ? "name=".self::quote($array['name'])." " : null;
 				$button .= !empty($array['value']) ? "value=".self::quote($array['value'])." " : null;
 				$button .= !empty($array['id']) ? "id='".$array['id']."' " : null;

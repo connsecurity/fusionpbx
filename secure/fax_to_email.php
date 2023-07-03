@@ -374,7 +374,6 @@ if (!function_exists('fax_split_dtmf')) {
 		if (isset($fax_forward_number) && !empty($fax_forward_number)) {
 			//show info
 				echo "fax_forward_number: $fax_forward_number\n";
-
 			//add fax to the fax queue or send it directly
 				//build an array to add the fax to the queue
 				$array['fax_queue'][0]['fax_queue_uuid'] = uuid();

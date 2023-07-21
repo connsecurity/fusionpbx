@@ -43,7 +43,7 @@ require_once "resources/header.php";
 		<b><?= $text['label-inboxes'] ?> (<?= count($inbox_list) ?>)</b>
 	</div>
 	<div class="actions">
-		<?= button::create(['type'=>'button','label'=>$text['button-add'],'icon'=>$_SESSION['theme']['button_icon_add']]) ?>
+		<?= button::create(['type'=>'button','label'=>$text['button-add'],'icon'=>$_SESSION['theme']['button_icon_add'], 'onclick'=>'load_modal_inbox_add();']) ?>
 	</div>
 </div>
 
@@ -91,7 +91,30 @@ require_once "resources/header.php";
 	</table>
 </form>
 
+<div id="modal_inbox_add" class="modal-window"></div>
+
 <script>
+
+async function load_modal_inbox_add() {
+    let init = {
+            method: 'GET',
+            headers: {
+                "Content-Type": "text/html; charset=UTF-8"
+            }
+        };
+    
+    try {
+        const response = await fetch('inbox_add.php', init);
+        var modal_html = await response.text();
+
+    } catch (error) {
+        console.error(error);
+    }
+
+    const modal = document.getElementById('modal_inbox_add');
+    modal.innerHTML = modal_html;
+    modal_open('modal_inbox_add');
+}
 
 const checkbox_all_elem = document.getElementById('checkbox_all');
 const checkboxes = document.querySelectorAll('input[type=checkbox]');

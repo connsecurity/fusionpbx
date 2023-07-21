@@ -204,6 +204,34 @@ if (!function_exists('http_request')) {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        if ($content) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $content);
+        }
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+}
+
+if (!function_exists('chatwoot_agent_request')) {
+    function chatwoot_agent_request($path, $method = "GET", $content = NULL) {
+        
+        $api_access_token = $_SESSION['chatwoot']['user']['access_token'];
+
+        $url = $_SESSION['chat']['chatwoot_url']['text']."/api/v1".$path;
+
+        $headers = ["Content-type: application/json; charset=utf-8",
+                    "api_access_token: ".$api_access_token];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         if ($content) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $content);
         }

@@ -1,12 +1,4 @@
 (function () {
-    // window.chatwoot = {};
-    // chatwoot.inbox_identifier = inbox_identifier;
-    // chatwoot.chatwoot_api_url = "https://chat.connsecurity.com.br/api/v1/";
-    // chatwoot.contact_pubsub_token = contact_pubsub_token;
-    // chatwoot.account_id = account_id;
-    // chatwoot.user_id = user_id;
-
-    // for better performance - to avoid searching in DOM
     const message_input_elem = document.getElementById('message_input');
     const send_button_elem = document.getElementById('send_button');
     const conversation_list_elem = document.getElementById('conversation_list');
@@ -25,7 +17,7 @@
     }
 
     // open connection
-    var connection = new WebSocket('wss://chat.connsecurity.com.br/cable');
+    var connection = new WebSocket(chatwoot.websocket_url);
 
     connection.onopen = function () {
 
@@ -108,7 +100,7 @@
     }
 
     async function getConversations() {
-        let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations`;
+        let url = `handlers/conversations.php`;
         const jsonData = await request(url, "GET");
         console.log("getConversations response:");
         console.log(jsonData);
@@ -128,8 +120,12 @@
         makeConversationActive(conversation_list_elem.firstElementChild);
     }
 
-    async function getMessages(conversation_id) {
-        let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations/${conversation_id}/messages`;
+    async function getMessages(conversation_id, before = false) {
+        if (before) {
+            var url = `handlers/messages.php?id=${conversation_id}&before=${earliest_message_id}`;
+        } else {
+            var url = `handlers/messages.php?id=${conversation_id}`;
+        }
         const jsonData = await request(url, "GET");
         console.log("getMessages response:");
         console.log(jsonData.payload);
@@ -210,21 +206,17 @@
     }
 
     async function postMessage(message, conversation_id) {
-        let url = `https://chat.connsecurity.com.br/api/v1/accounts/${chatwoot.account_id}/conversations/${conversation_id}/messages`;
+        let url = `handlers/messages.php?id=${conversation_id}`;
         let body = {
             content: message
         };
         const jsonData = await request(url, "POST", body);
         console.log(jsonData);
     }
-    
+
     async function request(url, method, body) {
         let init = {
             method: method,
-            headers: {
-                "Content-Type": "application/json;charset=UTF-8",
-                "api_access_token": chatwoot.user_api_access_token
-            },
             body: JSON.stringify(body)
         };
         try {

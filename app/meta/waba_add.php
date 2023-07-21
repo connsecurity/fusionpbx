@@ -26,6 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $waba_id = $_POST['id'];
 
+    if (!is_numeric($waba_id)) {
+        message::add($text['message-failed'],'negative');
+        header('Location: ./');
+        exit;
+    }
+
     $waba = new waba($waba_id);
     $success = $waba->save();
 

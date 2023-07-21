@@ -23,7 +23,6 @@ $wabas = load_domain_wabas();
 //show content
 $document['title'] = $text['title-meta'];
 require_once "resources/header.php";
-
 ?>
 <div class="action_bar">
     <div class="heading">
@@ -31,7 +30,7 @@ require_once "resources/header.php";
     </div>
     <div class="actions">
         <?php if(permission_exists('meta_edit')): ?>
-            <?= button::create(['type'=>'button','label'=>$text['label-manually_add'],'icon'=>$_SESSION['theme']['button_icon_add'], 'link'=>'waba_add.php']) ?> OR 
+            <?= button::create(['type'=>'button','label'=>$text['label-manually_add'],'icon'=>$_SESSION['theme']['button_icon_add'], 'onclick'=>'load_modal_waba_add();']) ?> OR 
         <?php endif; ?>
         <button onclick="launchWhatsAppSignup()" class="facebook"><?= $text['label-facebook_login'] ?></button>
     </div>
@@ -76,7 +75,31 @@ require_once "resources/header.php";
     </div>
 <?php endforeach; ?>
 
+<div id="modal_waba_add" class="modal-window"></div>
+
 <script>
+
+async function load_modal_waba_add() {
+    let init = {
+            method: 'GET',
+            headers: {
+                "Content-Type": "text/html; charset=UTF-8"
+            }
+        };
+    
+    try {
+        const response = await fetch('resources/modal_waba_add.php', init);
+        var modal_html = await response.text();
+
+    } catch (error) {
+        console.error(error);
+    }
+
+    const modal = document.getElementById('modal_waba_add');
+    modal.innerHTML = modal_html;
+    modal_open('modal_waba_add');
+}
+
 window.fbAsyncInit = function() {
     // JavaScript SDK configuration and setup
     FB.init({

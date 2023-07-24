@@ -109,8 +109,8 @@
     }
 
     async function getConversations() {
-        let url = `handlers/conversations.php`;
-        const jsonData = await request(url, "GET");
+        const path = `chat/conversations.php`;
+        const jsonData = await request(path, "GET");
         console.log("getConversations response:");
         console.log(jsonData);
 
@@ -138,12 +138,10 @@
 
     var earliest_message_id;
     async function getMessages(conversation_id, before = false) {
-        if (before) {
-            var url = `handlers/messages.php?id=${conversation_id}&before=${earliest_message_id}`;
-        } else {
-            var url = `handlers/messages.php?id=${conversation_id}`;
-        }
-        const jsonData = await request(url, "GET");
+        const path = before
+            ? `chat/messages.php?id=${conversation_id}&before=${earliest_message_id}`
+            : `chat/messages.php?id=${conversation_id}`;
+        const jsonData = await request(path, "GET");
         console.log("getMessages response:");
         console.log(jsonData.payload);
 
@@ -283,16 +281,17 @@
     }
 
     async function postMessage(message, conversation_id) {
-        let url = `handlers/messages.php?id=${conversation_id}`;
-        let body = {
+        const path = `chat/messages.php?id=${conversation_id}`;
+        const body = {
             content: message
         };
-        const jsonData = await request(url, "POST", body);
+        const jsonData = await request(path, "POST", body);
         console.log(jsonData);
     }
 
-    async function request(url, method, body) {
-        let init = {
+    async function request(path, method, body) {
+        const url = `/api/${path}`;
+        const init = {
             method: method,
             body: JSON.stringify(body)
         };

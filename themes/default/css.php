@@ -2553,14 +2553,26 @@ else { //default: white
 
 	.conversation_item > .contact {
 		flex: 1;
+		display: flex;
+		flex-direction: column;
+		max-height: 100%;
+		overflow: hidden;
+	}
+
+	.contact > p {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		margin-block-end: 0;
 	}
 
 	.contact > .name {
+		font-weight: bold;
 		font-size: 16px;
 	}
 
 	.contact > .last_message {
-		font-size: 10px;
+		font-size: 14px;
 	}
 
 	#chat {

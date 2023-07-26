@@ -105,7 +105,13 @@
     }
 
     function createConversation(data) {
-        appendConversation(data.id, data.meta.sender.name);
+        appendConversation(
+            data.id,
+            data.meta.sender.name,
+            data.last_non_activity_message.content,
+            data.last_non_activity_message.created_at,
+            data.status
+        );
     }
 
     async function getConversations() {

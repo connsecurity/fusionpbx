@@ -28,12 +28,10 @@ require_once "resources/header.php";
 	</div>
 	<div id="chat">
 		<div id="chat_header">
-			<span id="contact_name">Contact Name</span>
+			<span id="contact_name"><?= $text['label-contact_name'] ?></span>
 			<div id="actions">
-				<div id="open_actions">
-					<button id="resolve_button">Resolve</button>
-					<button id="options_button">?</button>
-				</div>
+				<button id="action_button"><?= $text['label-resolve'] ?></button>
+				<button id="options_button">?</button>
 			</div>
 		</div>
 		<div id="chat_messages"></div>
@@ -52,6 +50,10 @@ chatwoot.account_id = "<?= $_SESSION['chatwoot']['account']['id'] ?>";
 chatwoot.user_id = "<?= $_SESSION['chatwoot']['user']['id']  ?>";
 chatwoot.user_api_access_token = "<?= $_SESSION['chatwoot']['user']['access_token'] ?>";
 chatwoot.contact_pubsub_token = "<?= $_SESSION['chatwoot']['user']['pubsub_token'] ?>";
+
+//labels for buttons
+chatwoot.label_resolve = "<?= $text['label-resolve'] ?>";
+chatwoot.label_open = "<?= $text['label-open'] ?>";
 </script>
 <script src="./app.js?v=<?= time(); ?>"></script>
 

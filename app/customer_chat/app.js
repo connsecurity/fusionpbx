@@ -139,7 +139,12 @@
     function changeConversationStatus(conversation) {
         const status_list = /open|pending|snoozed|resolved/;
         let conversation_item_elem = findConversationById(conversation.id);
+        conversation_item_elem.status = conversation.status;
         conversation_item_elem.className = conversation_item_elem.className.replace(status_list, conversation.status);
+
+        if (conversation.id == active_conversation_elem.conversation_id) {
+            updateButtons();
+        }
     }
 
     var earliest_message_id;
@@ -187,6 +192,7 @@
         contact_elem.appendChild(last_message_elem);
 
         conversation_item_elem.conversation_id = id;
+        conversation_item_elem.status = status;
         conversation_item_elem.appendChild(picture_elem);
         conversation_item_elem.appendChild(contact_elem);
         conversation_item_elem.appendChild(last_message_time_elem);
@@ -239,6 +245,7 @@
         active_conversation_elem.classList.add("active");
 
         updateChatHeader(active_conversation_elem);
+        updateButtons();
         emptyMessages();
         await getMessages(active_conversation_elem.conversation_id);
 
@@ -272,6 +279,17 @@
         if (message && message.trim()) {
             postMessage(message, conversation_id);
         }
+    }
+
+    async function toggleConversationStatus(status, conversation_id) {
+        const path = 'chat/conversations.php';
+        const body = {
+            action: 'toggle_status',
+            conversation_id: conversation_id,
+            status: status
+        };
+        const jsonData = await request(path, "POST", body);
+        console.log(jsonData);
     }
 
     function clearInput() {
@@ -311,6 +329,26 @@
     }
 
     /**
+     * Buttons
+     */
+
+    const action_button_elem = document.getElementById('action_button');
+    const options_button_elem = document.getElementById('options_button');
+
+    function updateButtons() {
+        //if conversation is open, button to resolve, else button to open
+        if (active_conversation_elem.status === "open") {
+            action_button_elem.status = "resolved";
+            action_button_elem.className = "resolved";
+            action_button_elem.textContent = chatwoot.label_resolve;            
+        } else {
+            action_button_elem.status = "open";
+            action_button_elem.className = "open";
+            action_button_elem.textContent = chatwoot.label_open;
+        }
+    }
+
+    /**
      * Listeners
      */
     conversation_list_elem.addEventListener("click", function (e) {
@@ -339,6 +377,10 @@
             await getMessages(active_conversation_elem.conversation_id, true);
             scrollTo(scrollOffset);
         }
+    });
+
+    action_button_elem.addEventListener("click", function (e) {
+        toggleConversationStatus(action_button_elem.status, active_conversation_elem.conversation_id);
     });
 
     //detect chat_messages_elem has scroll activated

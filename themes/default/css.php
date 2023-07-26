@@ -2588,33 +2588,40 @@ else { //default: white
 		display: flex;
 	}
 
-	#open_actions {
-		display: flex;
-	}
-
-	#open_actions > button {		
+	#actions > button {
 		border: 1px solid transparent;
+		color: #fff;		
+		transition: background-color .25s ease-out;
+	}
+	
+	#action_button.resolved,
+	#action_button.resolved ~ button {
 		background-color: #44ce4b;
-		color: #fff;
+	}
+	
+	#action_button.resolved:hover,
+	#action_button.resolved ~ button:hover {
+		background-color: #2eae34;
 	}
 
-	#open_actions > button:focus {
+	#action_button.open,
+	#action_button.open ~ button {
+		background-color: #1f93ff;
+	}
+	
+	#action_button.open:hover,
+	#action_button.open ~ button:hover {
+		background-color: #0076e5;
+	}
+
+	#actions > button:focus {
 		outline: none;
 	}
 
-	#open_actions > button:hover {
-		background-color: #2eae34;
-		transition: background-color .25s ease-out,color .25s ease-out;
-	}
-
 	#resolve_button {
-		border-top-left-radius: 0.5rem;
-		border-bottom-left-radius: 0.5rem;
 	}
 
 	#options_button {
-		border-top-right-radius: 0.5rem;
-		border-bottom-right-radius: 0.5rem;
 		width: 2rem;
 	}
 	

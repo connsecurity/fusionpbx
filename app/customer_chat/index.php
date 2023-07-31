@@ -36,9 +36,26 @@ require_once "resources/header.php";
 		</div>
 		<div id="chat_messages"></div>
 		<form id="message_form">
+			<button type="button" id="templates_button"><i class="fab fa-whatsapp"></i></button>
 			<textarea id="message_input" placeholder="Type your message..."> </textarea>
 			<button type="submit" id="send_button" class="fas fa-paper-plane"></button>
 		</form>
+	</div>
+</div>
+
+<div id="modal_templates" class="modal-window">
+	<div id="modal_container">
+		<span title="<?= $text['button-close'] ?>" class='modal-close' onclick="modal_close();">&times</span>
+		<span class='modal-title'><?= $text['label-templates'] ?></span>
+		<span id="templates_description"><?= $text['description-templates'] ?></span>
+		<div id="template_list"></div>
+		<div id="template_process">
+			<div id="template_content"></div>
+			<div class="modal_actions">
+				<button type="button" id="templates_back_button">Go Back</button>
+				<button type="button" id="templates_send_button">Send Message</button>
+			</div>
+		</div>
 	</div>
 </div>
 

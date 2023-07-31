@@ -304,13 +304,19 @@
         return local_time;
     }
 
-    async function postMessage(message, conversation_id) {
+    async function postMessage(message, conversation_id, template_params = null) {
         const path = `chat/messages.php?id=${conversation_id}`;
         const body = {
-            content: message
+            content: message,
+            template_params: template_params
         };
         const jsonData = await request(path, "POST", body);
         console.log(jsonData);
+    }
+
+    async function getWhatsappTemplates() {
+        const path = `chat/templates.php?inbox_id=${active_conversation_elem.inbox_id}`;
+        return request(path, "GET");
     }
 
     async function request(path, method, body) {
@@ -346,6 +352,116 @@
             action_button_elem.className = "open";
             action_button_elem.textContent = chatwoot.label_open;
         }
+    }
+
+    /**
+     * Templates Modal
+     */
+    const templates_list_elem = document.getElementById("template_list");
+    const template_process_elem = document.getElementById("template_process");
+    const template_content_elem = document.getElementById("template_content");
+    const templates_back_button_elem = document.getElementById('templates_back_button');
+    const templates_send_button_elem = document.getElementById('templates_send_button');
+    let selected_template = null;
+    const templates_data = new Map();
+
+    async function openTemplatesModal() {
+        templates_list_elem.replaceChildren();
+        const templates = await getWhatsappTemplates();
+        if (Array.isArray(templates) && templates.length) {
+            templates.forEach(template => {
+                appendTemplate(template);
+            });
+        }
+        modal_open('modal_templates');
+    }
+
+    function appendTemplate(template) {
+        const {name, language, components, category} = template;
+        const template_elem = createElement("div", "whatsapp_template");
+
+        //header
+        const template_name_elem = createElement("span", "template_name", name);
+        const template_language_elem = createElement("span", "template_language", language);
+        const template_category_elem = createElement("span", "template_category", category);        
+        const template_header_elem = createElement("div", "template_header");
+        template_header_elem.appendChild(template_name_elem);        
+        template_header_elem.appendChild(template_language_elem);
+        template_header_elem.appendChild(template_category_elem);
+        template_elem.appendChild(template_header_elem);
+
+        //components
+        const template_components_elem = createElement("div", "template_components");
+        components.forEach(component => {
+            const {type, text} = component;
+
+            const component_type_elem = createElement("span", "component_type", type);
+            template_components_elem.appendChild(component_type_elem);
+
+            const component_text_elem = createElement("span", "component_text", text);
+            template_components_elem.appendChild(component_text_elem);
+        });
+        template_elem.appendChild(template_components_elem);        
+
+        //save template data for later use
+        templates_data.set(template_elem, template);
+
+        templates_list_elem.appendChild(template_elem);
+    }
+
+    function showTemplate(template) {
+        const {name, components} = template;
+
+        components.forEach(component => {
+            const {type, text} = component;
+            if (type == "BODY") {
+                //append text to template_content_elem as textarea
+                const template_text_elem = createElement("textarea", type, text);
+                template_text_elem.readOnly = true;
+                template_content_elem.appendChild(template_text_elem);                
+            }
+            else {
+                //append text to template_content_elem as span
+                const template_text_elem = createElement("span", type, text);
+                template_content_elem.appendChild(template_text_elem);
+            }
+        });
+        
+        //hide template list and show template content
+        templates_list_elem.style.display = "none";
+        template_process_elem.style.display = "flex";
+    }
+
+    function sendTemplate(template) {
+        const {name, language, components, category} = template;
+        //get text from the component with type BODY
+        let message = "";
+        components.forEach(component => {
+            const {type, text} = component;
+            if (type == "BODY") {
+                message = text;
+            }
+        });
+        //get template params
+        const template_params = {
+            name: name,
+            language: language,
+            category: category,
+            processed_params: {
+                //TODO: get params from template
+            }
+        };
+        //send template message
+        postMessage(message, active_conversation_elem.conversation_id, template_params);
+    }
+
+
+    function hideTemplate() {
+        //clear template content
+        template_content_elem.replaceChildren();
+        //hide template content and show template list
+        templates_list_elem.style.display = "flex";
+        template_process_elem.style.display = "none";
     }
 
     /**
@@ -387,4 +503,30 @@
     function isScrollActivated() {
         return chat_messages_elem.scrollHeight > chat_messages_elem.clientHeight;
     };
+
+    //open whatsapp templates modal
+    whatsapp_templates_button_elem.addEventListener("click", function (e) {
+        openTemplatesModal();
+    });
+
+    //go back to templates list
+    templates_back_button_elem.addEventListener("click", function (e) {
+        hideTemplate();
+        selected_template = null;
+    });
+
+    //select template
+    templates_list_elem.addEventListener("click", function (e) {
+        const selected_template_elem = e.target.closest(".whatsapp_template");
+        selected_template = templates_data.get(selected_template_elem);
+        showTemplate(selected_template);
+        
+    });
+
+    //send template
+    templates_send_button_elem.addEventListener("click", function (e) {
+        if (selected_template){
+            sendTemplate(selected_template);
+        }
+    });
 })();

@@ -2701,6 +2701,145 @@ else { //default: white
     	padding-bottom: 16px;
 	}
 
+	#templates_button {
+		border-radius: 50px;
+		border: none;
+		color: white;
+		background-color: rgb(125 147 182);
+		width: 40px;
+	}
+
+	#templates_button > i {
+		font-size: 20px;
+	}
+
+	#templates_button:focus {
+		outline: none;
+	}
+
+	#modal_container {
+		max-height: 70vh;
+		width: 60vw;
+	}
+
+	#template_process {
+		margin-top: 1rem;
+		flex-direction: column;
+	}
+
+	#template_content {
+		display: flex;
+		flex-direction: column;
+		font-size: 14px;
+		background-color: rgb(235, 245, 255);
+		border-radius: 5px;
+		padding: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	#template_content > .HEADER {
+		font-weight: bold;
+	}
+
+	#template_content > .BODY {
+		resize: none;
+		border: none;
+	}
+
+	#template_content > .FOOTER {
+		font-size: 0.8rem;
+	}
+
+	.modal_actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	#templates_back_button {
+		background-color: #ebf5ff;
+		color: #135899;
+		border: none;
+		transition: background-color .25s ease-out;
+		height: 2.5rem;
+		font-size: 1rem;
+	}
+
+	#templates_back_button:focus {
+		outline: none;
+	}
+
+	#templates_back_button:hover {
+		background-color: #d6e9ff;
+	}
+
+	#templates_send_button {
+		background-color: #1f93ff;
+		color: #fff;
+		border: none;
+		transition: background-color .25s ease-out;
+		height: 2.5rem;
+		font-size: 1rem;
+		margin-left: 1rem;
+	}
+
+	#templates_send_button:focus {
+		outline: none;
+	}
+
+	#templates_send_button:hover {
+		background-color: #0076e5;
+	}
+
+	#template_list {
+		display: flex;
+		flex-direction: column;
+		color: #000;
+		font-size: 14px;
+	}
+
+	.whatsapp_template {
+		margin-top: 1rem;
+		padding: 1rem;
+		cursor: pointer;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		background-color: rgb(248, 250, 252);
+	}
+	
+	.whatsapp_template:hover {
+		background-color: rgb(235, 245, 255);
+	}
+
+	.template_header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+	}
+
+	.template_name {
+		flex: 1;
+	}
+
+	.template_components {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.component_type {
+		font-size: 12px;
+		font-weight: bold;
+	}
+
+	.component_text {
+		font-family: monospace;
+	}
+
+	#template_process {
+		display: none;
+	}
+
 	#message_form > #send_button {
 		border-radius: 50px;
 		border: none;

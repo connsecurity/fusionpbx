@@ -1,5 +1,6 @@
 (function () {
     const message_input_elem = document.getElementById('message_input');
+    const whatsapp_templates_button_elem = document.getElementById('templates_button');
     const send_button_elem = document.getElementById('send_button');
     const conversation_list_elem = document.getElementById('conversation_list');
     const conversation_list = [];

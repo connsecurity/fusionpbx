@@ -3,7 +3,7 @@
     const whatsapp_templates_button_elem = document.getElementById('templates_button');
     const send_button_elem = document.getElementById('send_button');
     const conversation_list_elem = document.getElementById('conversation_list');
-    const conversation_list = [];
+    const conversations_data = new Map();
     const contact_name_elem = document.getElementById('contact_name');
     const chat_messages_elem = document.getElementById('chat_messages');
     const default_picture_elem = createElement("img", "picture");
@@ -99,20 +99,26 @@
             updateLastMessage(conversation_item_elem, message.content, message.created_at);
         }
 
-        if (message.conversation_id === active_conversation_elem.conversation_id) {
+        if (message.conversation_id === getConversationId(active_conversation_elem)) {
             appendMessage(message.content, message.message_type, message.created_at);
             return;
         }
     }
 
-    function createConversation(data) {
-        appendConversation(
-            data.id,
-            data.meta.sender.name,
-            data.last_non_activity_message.content,
-            data.last_non_activity_message.created_at,
-            data.status
-        );
+    function createConversation(conversation) {
+        const conversationData = {
+            id: conversation.id,
+            name: conversation.meta.sender.name,
+            last_message: conversation.last_non_activity_message.content,
+            last_message_epoch: conversation.last_non_activity_message.created_at,
+            status: conversation.status,
+            inbox_id: conversation.inbox_id
+        };
+
+        conversations_data.set(conversation.id, conversationData);
+
+        const conversation_elem = createConversationElement(conversationData);
+        appendConversation(conversation_elem);
     }
 
     async function getConversations() {
@@ -125,11 +131,7 @@
         const conversations = jsonData.payload || jsonData.data.payload;
         if (Array.isArray(conversations) && conversations.length) {
             conversations.forEach(conversation => {
-                appendConversation(conversation.id,
-                    conversation.meta.sender.name,
-                    conversation.last_non_activity_message.content,
-                    conversation.last_non_activity_message.created_at,
-                    conversation.status);
+                createConversation(conversation);
             });
         } else {
             console.log("Error getting conversations");
@@ -140,10 +142,11 @@
     function changeConversationStatus(conversation) {
         const status_list = /open|pending|snoozed|resolved/;
         let conversation_item_elem = findConversationById(conversation.id);
-        conversation_item_elem.status = conversation.status;
+        const conversation_data = conversations_data.get(conversation.id);
+        conversation_data.status = conversation.status;
         conversation_item_elem.className = conversation_item_elem.className.replace(status_list, conversation.status);
 
-        if (conversation.id == active_conversation_elem.conversation_id) {
+        if (conversation.id == getConversationId(active_conversation_elem)) {
             updateButtons();
         }
     }
@@ -178,28 +181,43 @@
         }
     }
 
-    function appendConversation(id, name, last_message, last_message_epoch, status) {
-        //status = ["open", "resolved", "pending", "snoozed"]
+    function appendConversation(conversation_elem) {        
+        conversation_list_elem.appendChild(conversation_elem);
+    }
 
-        let picture_elem = default_picture_elem.cloneNode();
+    function createDefaultPictureElement() {
+        return default_picture_elem.cloneNode();
+    }
+
+    function createContactElement(name, last_message) {
         let contact_elem = createElement("div", "contact");
-        let name_elem = createElement("div", "name", name);
-        let last_message_elem = createElement("div", "last_message", last_message);
-        let last_message_time = convert_epoch_to_local(last_message_epoch);
-        let last_message_time_elem = createElement("div", "time", last_message_time);
-        let conversation_item_elem = createElement("div", `conversation_item ${status}`);
-
+        let name_elem = createElement("p", "name", name);
+        let last_message_elem = createElement("p", "last_message", last_message);
         contact_elem.appendChild(name_elem);
         contact_elem.appendChild(last_message_elem);
+        return contact_elem;
+    }
 
-        conversation_item_elem.conversation_id = id;
-        conversation_item_elem.status = status;
+    function createLastMessageTimeElement(last_message_epoch) {
+        let last_message_time = convert_epoch_to_local(last_message_epoch);
+        let last_message_time_elem = createElement("div", "time", last_message_time);
+        return last_message_time_elem;
+    }
+
+    function createConversationElement(conversation) {
+        const { id, name, last_message, last_message_epoch, status } = conversation;
+
+        let picture_elem = createDefaultPictureElement();
+        let contact_elem = createContactElement(name, last_message);
+        let last_message_time_elem = createLastMessageTimeElement(last_message_epoch);
+
+        let conversation_item_elem = createElement("div", `conversation_item ${status}`);
         conversation_item_elem.appendChild(picture_elem);
         conversation_item_elem.appendChild(contact_elem);
         conversation_item_elem.appendChild(last_message_time_elem);
+        conversation_item_elem.id = `conversation_${id}`;
 
-        conversation_list.push(conversation_item_elem);
-        conversation_list_elem.appendChild(conversation_item_elem);
+        return conversation_item_elem;
     }
 
     function appendMessage(content, type, message_epoch, prepend = false) {
@@ -248,11 +266,11 @@
         updateChatHeader(active_conversation_elem);
         updateButtons();
         emptyMessages();
-        await getMessages(active_conversation_elem.conversation_id);
+        await getMessages(getConversationId(active_conversation_elem));
 
         //get older messages if scroll is not activated
         while (!isScrollActivated() && earliest_message_id > 1) {
-            await getMessages(active_conversation_elem.conversation_id, true);
+            await getMessages(getConversationId(active_conversation_elem), true);
             scrollToBottom();
         }
     }
@@ -266,7 +284,7 @@
     }
 
     function findConversationById(conversation_id) {
-        return conversation_list.find(conversation => { return conversation.conversation_id === conversation_id });
+        return document.getElementById(`conversation_${conversation_id}`);
     }
 
     function updateLastMessage(conversation_item_elem, message, message_epoch) {
@@ -291,6 +309,10 @@
         };
         const jsonData = await request(path, "POST", body);
         console.log(jsonData);
+    }
+
+    function getConversationId(conversation_elem) {
+        return +conversation_elem.id.slice(13);
     }
 
     function clearInput() {
@@ -328,7 +350,7 @@
         };
         try {
             const response = await fetch(url, init);
-            return await response.json();
+            return response.json();
 
         } catch (error) {
             console.error(error);
@@ -343,13 +365,14 @@
     const options_button_elem = document.getElementById('options_button');
 
     function updateButtons() {
+        const active_conversation_data = conversations_data.get(getConversationId(active_conversation_elem));
         //if conversation is open, button to resolve, else button to open
-        if (active_conversation_elem.status === "open") {
-            action_button_elem.status = "resolved";
+        if (active_conversation_data.status === "open") {
+            action_button_elem.value = "resolved";
             action_button_elem.className = "resolved";
             action_button_elem.textContent = chatwoot.label_resolve;            
         } else {
-            action_button_elem.status = "open";
+            action_button_elem.value = "open";
             action_button_elem.className = "open";
             action_button_elem.textContent = chatwoot.label_open;
         }
@@ -453,7 +476,7 @@
             }
         };
         //send template message
-        postMessage(message, active_conversation_elem.conversation_id, template_params);
+        postMessage(message, getConversationId(active_conversation_elem), template_params);
     }
 
 
@@ -468,6 +491,8 @@
     /**
      * Listeners
      */
+
+    //select conversation
     conversation_list_elem.addEventListener("click", function (e) {
         let conversation_item_elem = e.target.closest(".conversation_item");
         if (conversation_item_elem) {
@@ -475,29 +500,32 @@
         }
     });
 
+    //send message on enter
     message_input_elem.addEventListener("keydown", function (e) {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            sendMessage(message_input_elem.value, active_conversation_elem.conversation_id);
+            sendMessage(message_input_elem.value, getConversationId(active_conversation_elem));
         }
     });
 
+    //send message
     send_button_elem.addEventListener("click", function (e) {
         e.preventDefault();
-        sendMessage(message_input_elem.value, active_conversation_elem.conversation_id);
+        sendMessage(message_input_elem.value, getConversationId(active_conversation_elem));
     });
 
     //get older messages when scroll to top
     chat_messages_elem.addEventListener("scroll", async function (e) {
         if (e.target.scrollTop === 0 && earliest_message_id > 1) {
             const scrollOffset = chat_messages_elem.scrollHeight - chat_messages_elem.scrollTop;
-            await getMessages(active_conversation_elem.conversation_id, true);
+            await getMessages(getConversationId(active_conversation_elem), true);
             scrollTo(scrollOffset);
         }
     });
 
+    //toggle conversation status
     action_button_elem.addEventListener("click", function (e) {
-        toggleConversationStatus(action_button_elem.status, active_conversation_elem.conversation_id);
+        toggleConversationStatus(action_button_elem.value, getConversationId(active_conversation_elem));
     });
 
     //detect chat_messages_elem has scroll activated

@@ -35,9 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $conversation_id = $data->conversation_id;
         $status = $data->status;
+        $snooze_until = $data->snooze_until;
         $path = "/accounts/".$_SESSION['chatwoot']['account']['id']."/conversations/".$conversation_id."/toggle_status";
         $body = array (
-            'status' => $status
+            'status' => $status,
+            'snoozed_until' => $snooze_until
         );
 
         $response = chatwoot_agent_request($path, 'POST', json_encode($body));

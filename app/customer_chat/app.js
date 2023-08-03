@@ -5,6 +5,7 @@
     const conversation_list_elem = document.getElementById('conversation_list');
     const conversations_data = new Map();
     const contact_name_elem = document.getElementById('contact_name');
+    const dropdown_pane_elem = document.getElementById('dropdown_pane');
     const chat_messages_elem = document.getElementById('chat_messages');
     const default_picture_elem = createElement("img", "picture");
     default_picture_elem.src = "user_icon_3.svg?v=2";
@@ -300,15 +301,37 @@
         }
     }
 
-    async function toggleConversationStatus(status, conversation_id) {
+    const status_map = {
+        resolved: { status: "resolved" },
+        open: { status: "open" },
+        mark_as_pending: { status: "pending" },
+        snooze_next_reply: { status: "snoozed" },
+        snooze_tomorrow: { status: "snoozed", snooze_until: getTomorrowEpoch() },
+        snooze_next_week: { status: "snoozed", snooze_until: getNextWeekEpoch() }
+    };
+    async function toggleConversationStatus(status_option, conversation_id) {
+        const { status, snooze_until } = status_map[status_option];
         const path = 'chat/conversations.php';
         const body = {
             action: 'toggle_status',
             conversation_id: conversation_id,
-            status: status
+            status: status,
+            snooze_until: snooze_until
         };
         const jsonData = await request(path, "POST", body);
         console.log(jsonData);
+    }
+
+    function getTomorrowEpoch() {
+        let tomorrow = new Date();
+        tomorrow.setHours(24,0,0,0);
+        return tomorrow.getTime()/1000;
+    }
+
+    function getNextWeekEpoch() {
+        let next_week = new Date();
+        next_week.setHours(24*7,0,0,0);
+        return next_week.getTime()/1000;
     }
 
     function getConversationId(conversation_elem) {
@@ -317,6 +340,14 @@
 
     function clearInput() {
         message_input_elem.value = "";
+    }
+
+    function toggleDropdownPane() {
+        if (dropdown_pane_elem.style.display === "none") {
+            dropdown_pane_elem.style.display = "flex";
+        } else {
+            dropdown_pane_elem.style.display = "none";
+        } 
     }
 
     function convert_epoch_to_local(epoch_time) {
@@ -526,6 +557,26 @@
     //toggle conversation status
     action_button_elem.addEventListener("click", function (e) {
         toggleConversationStatus(action_button_elem.value, getConversationId(active_conversation_elem));
+    });
+
+    //open dropdown pane
+    options_button_elem.addEventListener("click", function (e) {
+        e.stopPropagation();
+        toggleDropdownPane();
+    });   
+    
+    //close dropdown pane when clicking outside
+    document.addEventListener("click", function (e) {
+        if (!dropdown_pane_elem.contains(e.target)) {
+            dropdown_pane_elem.style.display = "none";
+        }
+    });
+    
+    //dropdown options
+    dropdown_pane_elem.addEventListener("click", function (e) {
+        const selected_button = e.target.closest("button");
+        console.log (selected_button);
+        toggleConversationStatus(selected_button.id, getConversationId(active_conversation_elem));
     });
 
     //detect chat_messages_elem has scroll activated

@@ -2598,6 +2598,7 @@ else { //default: white
 
 	#actions {
 		display: flex;
+		position: relative;
 	}
 
 	#actions > button {
@@ -2635,6 +2636,61 @@ else { //default: white
 
 	#options_button {
 		width: 2rem;
+	}
+
+	#dropdown_pane {
+		flex-direction: column;
+		position: absolute;
+		top: 2.5rem;
+		background-color: white;
+		min-width: 10rem;
+		min-height: 10rem;
+		z-index: 9999;
+		box-shadow: 0 .8rem 1.6rem rgba(50,50,93,.08),0 .4rem 1.2rem rgba(0,0,0,.07);
+		font-size: 0.75rem;
+		padding: 1rem;
+	}
+
+	#snooze_container {
+		display: flex;
+		flex-direction: column;
+	}
+
+	#snooze_container > span {
+		color: #37546d;
+		padding: 0.5rem 0;
+	}
+
+	#dropdown_pane > button,
+	#snooze_container > button {
+		color: #37546d;
+		padding: 0.5rem 0;
+		border: none;
+		display: inline-flex;
+		align-items: center;
+		background-color: #fff;
+	}
+
+	#dropdown_pane > button > i,
+	#snooze_container > button > i {
+		margin: 0 0.4rem;
+	}
+
+	#dropdown_pane > button:hover,
+	#snooze_container > button:hover {
+		background-color: #f1f5f8;
+		transition: background-color .25s ease-out;
+	}
+
+	#dropdown_pane > button:focus,
+	#snooze_container > button:focus {
+		outline: none;
+	}	
+
+	#divider {
+		border-bottom: 1px solid #f1f5f8;
+		margin: 0.5rem 0;
+		padding: 0 !important;
 	}
 	
 	#chat_messages {		

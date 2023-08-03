@@ -31,7 +31,29 @@ require_once "resources/header.php";
 			<span id="contact_name"><?= $text['label-contact_name'] ?></span>
 			<div id="actions">
 				<button id="action_button"><?= $text['label-resolve'] ?></button>
-				<button id="options_button">?</button>
+				<button id="options_button"><i class="fas fa-chevron-down"></i></button>
+				<div id="dropdown_pane" style="display: none;">
+					<button id="mark_as_pending">
+						<i class="fas fa-pause"></i>
+						<?= $text['label-mark_pending'] ?>
+					</button>
+					<div id="divider"></div>
+					<div id="snooze_container">
+						<span><?= $text['label-snooze_until'] ?></span>						
+						<button id="snooze_next_reply">
+							<i class="fas fa-comment-dots"></i>
+							<?= $text['label-next_reply'] ?>
+						</button>
+						<button id="snooze_tomorrow">
+							<i class="fas fa-calendar-day"></i>
+							<?= $text['label-tomorrow'] ?>
+						</button>
+						<button id="snooze_next_week">
+							<i class="fas fa-calendar-week"></i>
+							<?= $text['label-next_week'] ?>
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div id="chat_messages"></div>

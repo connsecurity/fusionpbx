@@ -2757,12 +2757,23 @@ else { //default: white
     	padding-bottom: 16px;
 	}
 
-	#templates_button {
-		border-radius: 50px;
+	#message_form > button {
+		border-radius: 5px;
 		border: none;
 		color: white;
 		background-color: rgb(125 147 182);
+		transition: background-color .25s ease-out;
 		width: 40px;
+		margin-right: 1rem;
+		margin-left: 1rem;
+	}
+
+	#message_form > button:focus {
+		outline: none;
+	}
+
+	#message_form > button:hover {
+		background-color: rgb(155 177 222);
 	}
 
 	#templates_button > i {
@@ -2896,22 +2907,9 @@ else { //default: white
 		display: none;
 	}
 
-	#message_form > #send_button {
-		border-radius: 50px;
-		border: none;
-		color: white;
-		background-color: rgb(125 147 182);
-		width: 40px;
-	}
-
-	#message_form > #send_button:focus {
-		outline: none;
-	}
-
 	#message_input {
 		flex: 1;
 		resize: none;
-		margin-right: 5%;
 		border: none;
 		border-radius: 5px;
 		height: 40px;

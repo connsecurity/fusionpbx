@@ -369,7 +369,8 @@
     }
 
     async function getWhatsappTemplates() {
-        const path = `chat/templates.php?inbox_id=${active_conversation_elem.inbox_id}`;
+        const active_conversation_data = conversations_data.get(getConversationId(active_conversation_elem));
+        const path = `chat/templates.php?inbox_id=${active_conversation_data.inbox_id}`;
         return request(path, "GET");
     }
 

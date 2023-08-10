@@ -511,7 +511,6 @@
         postMessage(message, getConversationId(active_conversation_elem), template_params);
     }
 
-
     function hideTemplate() {
         //clear template content
         template_content_elem.replaceChildren();
@@ -610,4 +609,13 @@
             sendTemplate(selected_template);
         }
     });
+
+    //keep alive
+    async function keepAlive() {
+        console.log("ping funsion");
+        const response = await fetch("/api/keep_alive.php");
+        console.log(await response.text());
+    }
+    setInterval(keepAlive, 5 * 60 * 1000);
+
 })();

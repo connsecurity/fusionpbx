@@ -29,4 +29,11 @@
 		$apps[$x]['description']['sv-se'] = "Web chat";
 		$apps[$x]['description']['uk-ua'] = "Web chat";
 		
+		//permission details
+		$y=0;
+		$apps[$x]['permissions'][$y]['name'] = "customer_chat_view";
+		$apps[$x]['permissions'][$y]['menu']['uuid'] = "4ad4e0df-d1a4-4c5b-9216-5ea1db9bfc02";
+		$apps[$x]['permissions'][$y]['groups'][] = "superadmin";
+		$apps[$x]['permissions'][$y]['groups'][] = "admin";
+
 ?>

@@ -14,8 +14,8 @@
 	$apps[$x]['menu'][$y]['title']['it-it'] = "Customer Chat";
 	$apps[$x]['menu'][$y]['title']['nl-nl'] = "Customer Chat";
 	$apps[$x]['menu'][$y]['title']['pl-pl'] = "Customer Chat";
-	$apps[$x]['menu'][$y]['title']['pt-br'] = "Customer Chat";
-	$apps[$x]['menu'][$y]['title']['pt-pt'] = "Customer Chat";
+	$apps[$x]['menu'][$y]['title']['pt-br'] = "Chat";
+	$apps[$x]['menu'][$y]['title']['pt-pt'] = "Chat";
 	$apps[$x]['menu'][$y]['title']['ro-ro'] = "Customer Chat";
 	$apps[$x]['menu'][$y]['title']['ru-ru'] = "Customer Chat";
 	$apps[$x]['menu'][$y]['title']['sv-se'] = "Customer Chat";

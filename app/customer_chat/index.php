@@ -74,8 +74,8 @@ require_once "resources/header.php";
 		<div id="template_process">
 			<div id="template_content"></div>
 			<div class="modal_actions">
-				<button type="button" id="templates_back_button">Go Back</button>
-				<button type="button" id="templates_send_button">Send Message</button>
+				<button type="button" id="templates_back_button"><?= $text['label-go_back'] ?></button>
+				<button type="button" id="templates_send_button"><?= $text['label-send_message'] ?></button>
 			</div>
 		</div>
 	</div>

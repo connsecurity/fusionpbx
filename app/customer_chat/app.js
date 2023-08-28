@@ -152,21 +152,20 @@
         }
     }
 
+    var no_more_messages = false;
     var earliest_message_id;
     async function getMessages(conversation_id, before = false) {
         const path = before
             ? `chat/messages.php?id=${conversation_id}&before=${earliest_message_id}`
             : `chat/messages.php?id=${conversation_id}`;
         const jsonData = await request(path, "GET");
-        console.log("getMessages response:");
-        console.log(jsonData.payload);
-
-        // Update earliest_message_id
-        earliest_message_id = jsonData.payload[0].id;
 
         // Check the messages array
         const messages = jsonData.payload;
         if (Array.isArray(messages) && messages.length) {
+            // Update earliest_message_id
+            earliest_message_id = jsonData.payload[0].id;
+
             if (before) {
                 messages.reverse().forEach(message => {
                     appendMessage(message.content, message.message_type, message.created_at, true);
@@ -177,9 +176,9 @@
                 });
             }
         } else {
-            console.log("Error getting messages");
+            no_more_messages = true;
             return;
-        }
+        }        
     }
 
     function appendConversation(conversation_elem) {        
@@ -269,8 +268,10 @@
         emptyMessages();
         await getMessages(getConversationId(active_conversation_elem));
 
+        no_more_messages = false;
+
         //get older messages if scroll is not activated
-        while (!isScrollActivated() && earliest_message_id > 1) {
+        while (!isScrollActivated() && !no_more_messages) {
             await getMessages(getConversationId(active_conversation_elem), true);
             scrollToBottom();
         }
@@ -547,7 +548,7 @@
 
     //get older messages when scroll to top
     chat_messages_elem.addEventListener("scroll", async function (e) {
-        if (e.target.scrollTop === 0 && earliest_message_id > 1) {
+        if (e.target.scrollTop === 0 && !no_more_messages) {
             const scrollOffset = chat_messages_elem.scrollHeight - chat_messages_elem.scrollTop;
             await getMessages(getConversationId(active_conversation_elem), true);
             scrollTo(scrollOffset);
